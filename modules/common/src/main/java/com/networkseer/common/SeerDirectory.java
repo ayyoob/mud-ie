@@ -11,7 +11,7 @@ public class SeerDirectory {
         return System.getProperty(DATASOURCE_DIR);
     }
 
-    public static String getSeerConfigDir() {
+    public static String getConfigDirectory() {
         return System.getProperty(SEER_CONFIG_DIR);
     }
 

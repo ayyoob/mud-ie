@@ -201,9 +201,9 @@ SEER_CLASSPATH=""
 if [ -e "$JAVA_HOME/lib/tools.jar" ]; then
     SEER_CLASSPATH="$JAVA_HOME/../lib/tools.jar"
 fi
-for f in "$SEER_HOME"/runtime/lib/*.jar
+for f in "$SEER_HOME"/lib/*.jar
 do
-    if [ "$f" != "$SEER_HOME/runtime/lib/*.jar" ];then
+    if [ "$f" != "$SEER_HOME/lib/*.jar" ];then
         SEER_CLASSPATH="$SEER_CLASSPATH":$f
     fi
 done
@@ -259,6 +259,7 @@ do
     -Dseer.logs.dir.path="$SEER_HOME/logs" \
     -Dfile.encoding=UTF8 \
     -Djava.net.preferIPv4Stack=true \
+    -Djava.util.logging.config.file="$SEER_HOME/logs.log4j.properties" \
     com.networkseer.core.SeerCore
     status=$?
 done

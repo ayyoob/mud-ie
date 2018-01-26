@@ -1,9 +1,15 @@
 package com.networkseer.core;
 
+import com.networkseer.common.SeerDirectory;
 import com.networkseer.common.SeerPlugin;
+import com.networkseer.core.api.SeerApiCore;
+import com.networkseer.core.shutdown.SeerShutdownHook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class SeerCore {
@@ -13,18 +19,18 @@ public class SeerCore {
     private static Map<String, Boolean> activatedSeerPlugin = new HashMap<>();
     private static final int MAX_INTERATION = 1000;
     private static int currentIteration = 0;
-    private static String apiParams[] = {"server"};
+    private static final String SERVER_TAG = "server";
+    private static final String CONFIG_FILE_NAME = "seer.yml";
+    private static final String PID_FILE_NAME = "seer.pid";
 
     public static void main(String[] args) throws Exception {
         Runtime.getRuntime().addShutdownHook(new SeerShutdownHook());
-        if (log.isDebugEnabled()) {
-            log.debug("datasource registered");
-        }
+        setupPidFile();
+        SeerApiCore seerApiCore = new SeerApiCore();
         loadSeerPlugins();
         activatePlugin();
-        SeerApiCore seerApiCore = new SeerApiCore();
+        String apiParams[] = {SERVER_TAG, SeerDirectory.getConfigDirectory() + File.separator + CONFIG_FILE_NAME};
         seerApiCore.run(apiParams);
-        log.info("Server is started.");
     }
 
 
@@ -84,6 +90,21 @@ public class SeerCore {
 
     public static List<SeerPlugin> getSeerPlugins() {
         return seerPlugins;
+    }
+
+    public static void setupPidFile() {
+        String processName =
+                java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
+        long pid = Long.parseLong(processName.split("@")[0]);
+        try {
+            FileWriter fileWriter = new FileWriter(SeerDirectory.getRootDirectory()
+                    + File.separator + PID_FILE_NAME);
+            fileWriter.write("" + pid);
+            fileWriter.close();
+        } catch (IOException e) {
+            log.error("Failed to setup pid file");
+        }
+
     }
 
 }

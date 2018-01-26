@@ -12,6 +12,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.io.*;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 
@@ -37,7 +38,7 @@ public class DataSourceFactory {
                     Context compCtx = (Context) context.lookup("java:comp");
                     Context envCtx = compCtx.createSubcontext("env");
                     Context jdbcCtx = envCtx.createSubcontext("jdbc");
-                    jdbcCtx.bind("jndiName", dataSource);
+                    jdbcCtx.bind(jndiName, dataSource);
                     dataSourceMap.put(jndiName, dataSource);
                 } else {
                     log.error("JNDI name cannot be found for: " + file.getAbsolutePath());

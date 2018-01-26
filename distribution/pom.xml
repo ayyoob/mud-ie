@@ -14,6 +14,12 @@
 
     <name>seer-distribution</name>
     <url>http://maven.apache.org</url>
+    <dependencies>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -31,9 +37,6 @@
                         <configuration>
                             <outputDirectory>${basedir}/target/lib</outputDirectory>
                             <overWriteIfNewer>true</overWriteIfNewer>
-                            <!--<excludeGroupIds>-->
-                            <!--junit,org.hamcrest,org.mockito,org.powermock,${project.groupId}-->
-                            <!--</excludeGroupIds>-->
                         </configuration>
                     </execution>
                     <execution>
@@ -48,6 +51,40 @@
                     <detail>true</detail>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <!-- Creating Parental schema -->
+                        <id>copy-con</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <echo message="########### Create Parental H2 Schema ###########" />
+
+                                <property name="db.dir" value="target/database" />
+                                <property name="userid" value="seer" />
+                                <property name="password" value="seer" />
+                                <property name="dbURL" value="jdbc:h2:file:${basedir}/${db.dir}/SeerParental;DB_CLOSE_ON_EXIT=FALSE" />
+
+                                <sql driver="org.h2.Driver" url="${dbURL}" userid="${userid}" password="${password}" autocommit="true" onerror="continue">
+                                    <classpath refid="maven.dependency.classpath" />
+                                    <classpath refid="maven.compile.classpath" />
+                                    <classpath refid="maven.runtime.classpath" />
+
+                                    <fileset file="${basedir}/../resources/dbscripts/parental/h2.sql" />
+                                </sql>
+                                <echo message="##################### END ####################" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

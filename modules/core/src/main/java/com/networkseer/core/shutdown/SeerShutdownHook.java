@@ -1,6 +1,7 @@
-package com.networkseer.core;
+package com.networkseer.core.shutdown;
 
 import com.networkseer.common.SeerPlugin;
+import com.networkseer.core.SeerCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

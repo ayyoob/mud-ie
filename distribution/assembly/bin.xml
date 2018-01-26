@@ -85,7 +85,14 @@
         </fileSet>
 
 
-        <!-- Copying Default profile files -->
+        <!-- Setting up collector profile files -->
+        <fileSet>
+            <directory>.</directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/tmp</outputDirectory>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
+        </fileSet>
         <fileSet>
             <directory>.</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/collector/bin/</outputDirectory>
@@ -113,9 +120,9 @@
         </fileSet>
         <fileSet>
             <directory>
-                ../resources/logs
+                ../resources/conf
             </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/logs/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/conf/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
@@ -128,19 +135,22 @@
             <includes>
                 <include>*/**</include>
             </includes>
-        </fileSet>
-        <fileSet>
-            <directory>.</directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/runtime/</outputDirectory>
-            <excludes>
-                <exclude>*/**</exclude>
-            </excludes>
+            <fileMode>777</fileMode>
         </fileSet>
         <fileSet>
             <directory>
                 ../modules/core/target/lib
             </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/runtime/lib/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ./target/database
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/database/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
@@ -149,7 +159,7 @@
             <directory>
                 ../modules/datasource-mgt/target/lib
             </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/runtime/lib/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
@@ -158,27 +168,12 @@
     <files>
         <file>
             <source>../modules/core/target/seer-core-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/runtime/lib</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
             <source>../modules/datasource-mgt/target/seer-datasource-mgt-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/runtime/lib</outputDirectory>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>../resources/bin/seer.sh</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/bin/</outputDirectory>
-            <fileMode>777</fileMode>
-        </file>
-        <file>
-            <source>../resources/bin/version.txt</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/bin/</outputDirectory>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>../resources/bin/version.txt</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/bin/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib</outputDirectory>
             <fileMode>644</fileMode>
         </file>
     </files>
