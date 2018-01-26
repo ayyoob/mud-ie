@@ -1,6 +1,7 @@
 server:
-#  requestLog:
-#    appenders:
+
+  requestLog:
+      appenders: []
 #      - type: console
 #        layout:
 #          type: access-json
