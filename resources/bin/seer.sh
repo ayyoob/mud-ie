@@ -260,6 +260,6 @@ do
     -Dfile.encoding=UTF8 \
     -Djava.net.preferIPv4Stack=true \
     -Djava.util.logging.config.file="$SEER_HOME/logs.log4j.properties" \
-    com.networkseer.core.SeerCore
+    com.networkseer.framework.SeerCore
     status=$?
 done

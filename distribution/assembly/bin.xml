@@ -139,7 +139,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ../modules/core/target/lib
+                ../modules/core/seer-framework/target/lib
             </directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib/</outputDirectory>
             <includes>
@@ -157,7 +157,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ../modules/datasource-mgt/target/lib
+                ../modules/core/datasource-mgt/target/lib
             </directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib/</outputDirectory>
             <includes>
@@ -167,12 +167,17 @@
     </fileSets>
     <files>
         <file>
-            <source>../modules/core/target/seer-core-${pom.version}.jar</source>
+            <source>../modules/core/seer-framework/target/seer-core-${pom.version}.jar</source>
             <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../modules/datasource-mgt/target/seer-datasource-mgt-${pom.version}.jar</source>
+            <source>../modules/core/datasource-mgt/target/datasource-mgt-${pom.version}.jar</source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../modules/core/user-mgt/target/user-mgt-${pom.version}.jar</source>
             <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib</outputDirectory>
             <fileMode>644</fileMode>
         </file>
