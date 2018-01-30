@@ -1,15 +1,15 @@
 package com.networkseer.seer.mgt.internal;
 
-import com.networkseer.seer.mgt.service.UserStoreService;
+import com.networkseer.seer.mgt.service.SeerMgtService;
 
 public class SeerManagementDataHolder {
-	private static UserStoreService userStoreService;
+	private static SeerMgtService seerMgtService;
 
-	public static UserStoreService getUserStoreService() {
-		return userStoreService;
+	public static SeerMgtService getSeerMgtService() {
+		return seerMgtService;
 	}
 
-	public static void setUserStoreService(UserStoreService userStoreService) {
-		SeerManagementDataHolder.userStoreService = userStoreService;
+	public static void setSeerMgtService(SeerMgtService seerMgtService) {
+		SeerManagementDataHolder.seerMgtService = seerMgtService;
 	}
 }

@@ -1,14 +1,12 @@
-package com.networkseer.user.mgt.service;
+package com.networkseer.user.mgt;
 
-import com.networkseer.common.PriviledgedSeerContext;
 import com.networkseer.common.SeerApiPlugin;
 import com.networkseer.user.mgt.dto.User;
 import com.networkseer.user.mgt.exception.UserManagementException;
 import com.networkseer.user.mgt.internal.UserManagementDataHolder;
 import com.networkseer.user.mgt.internal.UserManagmentSeerPluginImpl;
 import com.networkseer.user.mgt.service.UserStoreService;
-import com.networkseer.user.mgt.service.dto.Login;
-import com.networkseer.user.mgt.service.dto.UserCount;
+import com.networkseer.user.mgt.dto.UserCount;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -24,7 +22,7 @@ import java.util.List;
 @Path("/admin/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/admin/users", description = "admin user mgt services")
-public class UserStoreSeerAdminApi implements SeerApiPlugin {
+public class UserStoreSeerAdminRestApi implements SeerApiPlugin {
 	private static final Logger log = LoggerFactory.getLogger(UserManagmentSeerPluginImpl.class);
 
 
@@ -49,7 +47,6 @@ public class UserStoreSeerAdminApi implements SeerApiPlugin {
 	}
 
 	@GET
-	@Path("/all")
 	@ApiOperation(
 			value = "user detail",
 			notes = "Returns user detail",

@@ -49,6 +49,8 @@ logging:
       timeZone: UTC
       maxFileSize: 10Mb
 
+swagger: True
+
 userMgt:
   serverAdminUserName: "admin@seer.com"
   serverAdminPassword: "admin"

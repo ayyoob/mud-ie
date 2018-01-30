@@ -1,4 +1,4 @@
-package com.networkseer.user.mgt.service.dto;
+package com.networkseer.user.mgt.dto;
 
 public class Login {
 

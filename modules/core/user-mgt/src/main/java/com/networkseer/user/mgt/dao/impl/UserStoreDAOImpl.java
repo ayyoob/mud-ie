@@ -73,7 +73,7 @@ public class UserStoreDAOImpl implements UserStoreDAO {
 		try {
 			conn = this.getConnection();
 			String sql = "UPDATE UM_USER SET UM_USER_PASSWORD = ?, UM_CHANGED_TIME = ? WHERE UM_USER_NAME = ?";
-			stmt = conn.prepareStatement(sql, new String[] {"id"});
+			stmt = conn.prepareStatement(sql, new String[] {"um_id"});
 			stmt.setString(1, password);
 			stmt.setTimestamp(2, new Timestamp(new Date().getTime()));
 			stmt.setString(3, username);
@@ -250,7 +250,7 @@ public class UserStoreDAOImpl implements UserStoreDAO {
 		try {
 			conn = this.getConnection();
 			String sql = "UPDATE UM_SYSTEM_ROLE SET UM_ROLE_NAME = ? WHERE UM_ROLE_NAME = ?";
-			stmt = conn.prepareStatement(sql, new String[] {"id"});
+			stmt = conn.prepareStatement(sql, new String[] {"um_id"});
 			stmt.setString(1, newRoleName);
 			stmt.setString(2, oldRoleName);
 			rows = stmt.executeUpdate();

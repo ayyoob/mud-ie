@@ -1,4 +1,4 @@
-package com.networkseer.user.mgt.service;
+package com.networkseer.user.mgt;
 
 import com.networkseer.common.PriviledgedSeerContext;
 import com.networkseer.common.SeerApiPlugin;
@@ -6,10 +6,9 @@ import com.networkseer.user.mgt.dto.User;
 import com.networkseer.user.mgt.exception.UserManagementException;
 import com.networkseer.user.mgt.internal.UserManagementDataHolder;
 import com.networkseer.user.mgt.internal.UserManagmentSeerPluginImpl;
-import com.networkseer.user.mgt.service.dto.Login;
-import com.networkseer.user.mgt.service.dto.Password;
-import com.networkseer.user.mgt.service.dto.UserCount;
-import io.swagger.annotations.ApiOperation;
+import com.networkseer.user.mgt.service.UserStoreService;
+import com.networkseer.user.mgt.dto.Login;
+import com.networkseer.user.mgt.dto.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,7 @@ import io.swagger.annotations.ApiResponses;
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/users", description = "user mgt services")
-public class UserStoreSeerApi implements SeerApiPlugin {
+public class UserStoreSeerRestApi implements SeerApiPlugin {
 	private static final Logger log = LoggerFactory.getLogger(UserManagmentSeerPluginImpl.class);
 
 

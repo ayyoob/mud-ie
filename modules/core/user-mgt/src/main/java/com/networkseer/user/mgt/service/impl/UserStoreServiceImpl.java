@@ -1,4 +1,4 @@
-package com.networkseer.user.mgt.service;
+package com.networkseer.user.mgt.service.impl;
 
 import com.networkseer.user.mgt.dao.UserStoreDAO;
 import com.networkseer.user.mgt.dao.UserStoreManagementDAOFactory;
@@ -6,11 +6,12 @@ import com.networkseer.user.mgt.dao.impl.UserStoreDAOImpl;
 import com.networkseer.user.mgt.dto.Role;
 import com.networkseer.user.mgt.dto.User;
 import com.networkseer.user.mgt.exception.UserManagementException;
+import com.networkseer.user.mgt.service.UserStoreService;
 import com.networkseer.user.mgt.util.UserManagementDAOUtil;
 
 import java.util.List;
 
-public class UserStoreServiceImpl implements UserStoreService{
+public class UserStoreServiceImpl implements UserStoreService {
 
 	private UserStoreDAO userStoreDAO;
 

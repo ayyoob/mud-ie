@@ -1,1 +1,2 @@
-com.networkseer.seer.mgt.service.UserStoreSeerApi
+com.networkseer.seer.mgt.SeerMgtAdminRestApi
+com.networkseer.seer.mgt.SeerMgtRestApi

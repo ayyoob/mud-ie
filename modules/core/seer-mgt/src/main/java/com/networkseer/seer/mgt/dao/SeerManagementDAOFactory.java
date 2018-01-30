@@ -2,7 +2,7 @@ package com.networkseer.seer.mgt.dao;
 
 import com.networkseer.seer.mgt.dao.exception.IllegalTransactionStateException;
 import com.networkseer.seer.mgt.dao.exception.TransactionManagementException;
-import com.networkseer.seer.mgt.util.UserManagementDAOUtil;
+import com.networkseer.seer.mgt.util.SeerManagementDAOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +64,7 @@ public class SeerManagementDAOFactory {
 	private static final Logger log = LoggerFactory.getLogger(SeerManagementDAOFactory.class);
 
 	public static void init() {
-		dataSource = UserManagementDAOUtil.lookupDataSource(jndiPrefix +datasourceName);
+		dataSource = SeerManagementDAOUtil.lookupDataSource(jndiPrefix +datasourceName);
 	}
 
 	public static void beginTransaction() throws TransactionManagementException {

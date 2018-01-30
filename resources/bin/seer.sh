@@ -208,6 +208,13 @@ do
     fi
 done
 
+for f in "$SEER_HOME"/plugins/*.jar
+do
+    if [ "$f" != "$SEER_HOME/plugins/*.jar" ];then
+        SEER_CLASSPATH="$SEER_CLASSPATH":$f
+    fi
+done
+
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`

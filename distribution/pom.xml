@@ -113,7 +113,7 @@
                     </execution>
                     <execution>
                         <!-- Creating Parental schema -->
-                        <id>create-usermgt</id>
+                        <id>create-seer</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>run</goal>
