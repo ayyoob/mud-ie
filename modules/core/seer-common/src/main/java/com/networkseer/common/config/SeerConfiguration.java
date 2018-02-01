@@ -8,6 +8,8 @@ import javax.validation.constraints.NotNull;
 public class SeerConfiguration extends Configuration {
 	@NotNull
 	private UserMgt userMgt;
+	private Controller controller;
+	private String swagger;
 
 
 	@JsonProperty
@@ -18,5 +20,21 @@ public class SeerConfiguration extends Configuration {
 	@JsonProperty
 	public void setUserMgt(UserMgt userMgt) {
 		this.userMgt = userMgt;
+	}
+
+	public Controller getController() {
+		return controller;
+	}
+
+	public void setController(Controller controller) {
+		this.controller = controller;
+	}
+
+	public String getSwagger() {
+		return swagger;
+	}
+
+	public void setSwagger(String swagger) {
+		this.swagger = swagger;
 	}
 }

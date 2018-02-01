@@ -186,5 +186,15 @@
             <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
             <fileMode>644</fileMode>
         </file>
+        <file>
+            <source>../modules/core/sdn-controller-mgt/target/sdn-controller-mgt-${pom.version}.jar</source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../modules/packet-inspector/vxlan-listener/target/vxlan-listener-${pom.version}.jar</source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
     </files>
 </assembly>
