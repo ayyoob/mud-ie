@@ -9,13 +9,11 @@ public class Device {
 	private long lastUpdatedTimestamp;
 	private int switchId;
 	private Status status;
-	private int billingDay;
 	private int groupId;
 
 	public enum Status {
 		CREATED,
 		IDENTIFIED,
-		MODIFIED,
 		BLOCKED
 	}
 
@@ -73,14 +71,6 @@ public class Device {
 
 	public void setStatus(Status status) {
 		this.status = status;
-	}
-
-	public int getBillingDay() {
-		return billingDay;
-	}
-
-	public void setBillingDay(int billingDay) {
-		this.billingDay = billingDay;
 	}
 
 	public int getGroupId() {

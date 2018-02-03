@@ -12,6 +12,19 @@ public class SeerPacket {
     private String srcPort;
     private String dstPort;
     private byte[] payload;
+    private boolean isDstIgnore;
+
+    public boolean isDstIgnore() {
+        return isDstIgnore;
+    }
+
+    public void setDstIgnore(boolean dstIgnore) {
+        isDstIgnore = dstIgnore;
+    }
+
+    public void setTcpFlag(Flag tcpFlag) {
+        this.tcpFlag = tcpFlag;
+    }
 
     private Flag tcpFlag;
 

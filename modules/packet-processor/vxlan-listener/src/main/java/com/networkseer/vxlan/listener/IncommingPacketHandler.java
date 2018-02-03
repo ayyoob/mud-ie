@@ -34,6 +34,7 @@ public class IncommingPacketHandler extends SimpleChannelInboundHandler<Datagram
 		long rawAddressValue = bytesToLong(ethernetHeader.getDstAddr().getAddress());
 		if (isBroadcast(rawAddressValue) || isMulticast(rawAddressValue)) {
 			dropPacket = true;
+			seerPacket.setDstIgnore(true);
 		}
 
 		if (PacketConstants.IPV4_PROTO.equals(ethernetHeader.getType().toString())) {
@@ -48,16 +49,18 @@ public class IncommingPacketHandler extends SimpleChannelInboundHandler<Datagram
 				seerPacket.setDstPort(tcpPacket.getHeader().getDstPort().valueAsString());
 				seerPacket.setTcpFlag(tcpPacket.getHeader().getSyn(),tcpPacket.getHeader().getAck());
 				seerPacket.setPayload(tcpPacket.getPayload().getRawData());
+				dropPacket = false;
 			} else if (ipV4Header.getProtocol().valueAsString().equals(IpNumber.UDP.valueAsString()) ) {
 				UdpPacket udpPacket = (UdpPacket) ipV4Packet.getPayload();
 				seerPacket.setSrcPort(udpPacket.getHeader().getSrcPort().valueAsString());
 				seerPacket.setDstPort(udpPacket.getHeader().getDstPort().valueAsString());
 				seerPacket.setPayload(udpPacket.getPayload().getRawData());
-				if (dropPacket) {
-					if (PacketConstants.DHCP_PORT.equals(udpPacket.getHeader().getDstPort().valueAsString())) {
-						dropPacket =false;
-					}
-				}
+//				if (dropPacket) {
+//					if (PacketConstants.DHCP_PORT.equals(udpPacket.getHeader().getDstPort().valueAsString())) {
+//						dropPacket =false;
+//					}
+//				}
+				dropPacket = false;
 			}
 
 		}

@@ -23,8 +23,7 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/admin/users", description = "admin user mgt services")
 public class UserStoreSeerAdminRestApi implements SeerApiPlugin {
-	private static final Logger log = LoggerFactory.getLogger(UserManagmentSeerPluginImpl.class);
-
+	private static final Logger log = LoggerFactory.getLogger(UserStoreSeerAdminRestApi.class);
 
 	@GET
 	@Path("/count")

@@ -114,6 +114,41 @@ public class GroupDAOImpl implements GroupDAO {
 		}
 	}
 
+	@Override
+	public Group getGroup(String dpId, String deviceMac) throws SeerManagementException {
+		Connection conn;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		Group group = null;
+		try {
+			conn = this.getConnection();
+			String sql = "SELECT * FROM SM_GROUP WHERE SWITCH_ID = (SELECT SWITCH_ID FROM SM_DEVICE" +
+					" WHERE MAC_ADDRESS=? AND SWITCH_ID==(SELECT ID FROM SM_SWITCH WHERE DPID= ?)) ";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, deviceMac);
+			stmt.setString(2, dpId);
+			rs = stmt.executeQuery();
+			if (rs.next()) {
+				group = new Group();
+				group.setId(rs.getInt("ID"));
+				group.setGroupName(rs.getString("GROUP_NAME"));
+				group.setSwitchId(rs.getInt("SWITCH_ID"));
+				group.setDateOfCreation(rs.getTimestamp("CREATED_TIME").getTime());
+				group.setDateOfLastUpdate(rs.getTimestamp("LAST_UPDATED_TIME").getTime());
+				group.setQuota(rs.getLong("QUOTA"));
+				group.setQuotoAppEnabled(rs.getBoolean("QUOTA_APP"));
+				group.setParentalAppEnabled(rs.getBoolean("PARENTAL_APP"));
+				group.setSecurityAppEnabled(rs.getBoolean("IOT_SECURITY_APP"));
+			}
+		} catch (SQLException e) {
+			throw new SeerManagementException("Error occurred while listing group information for switch " +
+					"'" + dpId + "'", e);
+		} finally {
+			SeerManagementDAOUtil.cleanupResources(stmt, rs);
+		}
+		return group;
+	}
+
 	private Connection getConnection() throws SQLException {
 		return SeerManagementDAOFactory.getConnection();
 	}

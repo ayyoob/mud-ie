@@ -164,6 +164,15 @@
                 <include>*/**</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>
+                ../modules/core/parental-mgt/target/lib
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+        </fileSet>
     </fileSets>
     <files>
         <file>
@@ -193,6 +202,16 @@
         </file>
         <file>
             <source>../modules/packet-inspector/vxlan-listener/target/vxlan-listener-${pom.version}.jar</source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../modules/packet-inspector/parental-mgt/target/parental-mgt-${pom.version}.jar</source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../modules/packet-inspector/device-discovery/target/device-discovery-${pom.version}.jar</source>
             <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
             <fileMode>644</fileMode>
         </file>

@@ -1,6 +1,7 @@
 package com.networkseer.seer.mgt.dao;
 
 import com.networkseer.seer.mgt.dto.Device;
+import com.networkseer.seer.mgt.dto.DeviceRecord;
 import com.networkseer.seer.mgt.exception.SeerManagementException;
 
 import java.util.List;
@@ -22,5 +23,9 @@ public interface DeviceDAO {
 	List<Device> getDevices(int switchId) throws SeerManagementException;
 
 	List<Device> getDevices(String dpId) throws SeerManagementException;
+
+	DeviceRecord getDeviceRecord(String vlanId, String deviceMac) throws SeerManagementException;
+
+	boolean updateDeviceNameAndStatus(String deviceName,Device.Status status, int deviceId) throws SeerManagementException;
 
 }

@@ -13,4 +13,6 @@ public interface GroupDAO {
 
 	boolean removeGroup(int groupId) throws SeerManagementException;
 
+	Group getGroup(String dpId, String deviceMac) throws SeerManagementException;
+
 }

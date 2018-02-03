@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiResponses;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/users", description = "user mgt services")
 public class UserStoreSeerRestApi implements SeerApiPlugin {
-	private static final Logger log = LoggerFactory.getLogger(UserManagmentSeerPluginImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(UserStoreSeerRestApi.class);
 
 
 	@POST

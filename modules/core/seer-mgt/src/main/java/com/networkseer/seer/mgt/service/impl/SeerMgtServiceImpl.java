@@ -8,6 +8,8 @@ import com.networkseer.seer.mgt.dao.impl.DeviceDAOImpl;
 import com.networkseer.seer.mgt.dao.impl.GroupDAOImpl;
 import com.networkseer.seer.mgt.dao.impl.SwitchDAOImpl;
 import com.networkseer.seer.mgt.dto.Device;
+import com.networkseer.seer.mgt.dto.DeviceRecord;
+import com.networkseer.seer.mgt.dto.Group;
 import com.networkseer.seer.mgt.dto.Switch;
 import com.networkseer.seer.mgt.exception.SeerManagementException;
 import com.networkseer.seer.mgt.service.SeerMgtService;
@@ -87,6 +89,59 @@ public class SeerMgtServiceImpl implements SeerMgtService {
 			return deviceDAO.getDevices(dpId);
 		} catch (Exception e) {
 			throw new SeerManagementException(e);
+		} finally {
+			SeerManagementDAOFactory.closeConnection();
+		}
+	}
+
+	@Override
+	public Group getGroup(String dpId, String deviceMac) throws SeerManagementException {
+		try {
+			SeerManagementDAOFactory.openConnection();
+			return groupDAO.getGroup(dpId, deviceMac);
+		} catch (Exception e) {
+			throw new SeerManagementException(e);
+		} finally {
+			SeerManagementDAOFactory.closeConnection();
+		}
+	}
+
+	@Override
+	public DeviceRecord getDeviceRecord(String vlanId, String deviceMac) throws SeerManagementException {
+		try {
+			SeerManagementDAOFactory.openConnection();
+			return deviceDAO.getDeviceRecord(vlanId,deviceMac);
+		} catch (Exception e) {
+			throw new SeerManagementException(e);
+		} finally {
+			SeerManagementDAOFactory.closeConnection();
+		}
+	}
+
+	@Override
+	public void updateDeviceName(String deviceName, int deviceId) throws SeerManagementException {
+		try {
+			SeerManagementDAOFactory.beginTransaction();
+			deviceDAO.updateDeviceName(deviceName, deviceId);
+			SeerManagementDAOFactory.commitTransaction();
+		} catch (Exception e) {
+			SeerManagementDAOFactory.rollbackTransaction();
+			throw new SeerManagementException("Error occurred while updating device name", e);
+		} finally {
+			SeerManagementDAOFactory.closeConnection();
+		}
+	}
+
+	@Override
+	public void updateDeviceNameAndStatus(String deviceName, Device.Status status, int deviceId)
+			throws SeerManagementException {
+		try {
+			SeerManagementDAOFactory.beginTransaction();
+			deviceDAO.updateDeviceNameAndStatus(deviceName,status, deviceId);
+			SeerManagementDAOFactory.commitTransaction();
+		} catch (Exception e) {
+			SeerManagementDAOFactory.rollbackTransaction();
+			throw new SeerManagementException("Error occurred while updating device name", e);
 		} finally {
 			SeerManagementDAOFactory.closeConnection();
 		}

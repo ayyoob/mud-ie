@@ -3,6 +3,8 @@ package com.networkseer.seer.mgt.dao.impl;
 import com.networkseer.seer.mgt.dao.DeviceDAO;
 import com.networkseer.seer.mgt.dao.SeerManagementDAOFactory;
 import com.networkseer.seer.mgt.dto.Device;
+import com.networkseer.seer.mgt.dto.DeviceRecord;
+import com.networkseer.seer.mgt.dto.Group;
 import com.networkseer.seer.mgt.dto.Switch;
 import com.networkseer.seer.mgt.exception.SeerManagementException;
 import com.networkseer.seer.mgt.util.SeerManagementDAOUtil;
@@ -59,6 +61,29 @@ public class DeviceDAOImpl implements DeviceDAO {
 			stmt.setString(1, deviceName);
 			stmt.setTimestamp(2, new Timestamp(new Date().getTime()));
 			stmt.setInt(3, deviceId);
+			rows = stmt.executeUpdate();
+			return (rows > 0);
+		} catch (SQLException e) {
+			throw new SeerManagementException("Error occurred while updating the device. '" +
+					deviceId + "'", e);
+		} finally {
+			SeerManagementDAOUtil.cleanupResources(stmt, null);
+		}
+	}
+
+	@Override
+	public boolean updateDeviceNameAndStatus(String deviceName,Device.Status status, int deviceId) throws SeerManagementException {
+		Connection conn;
+		PreparedStatement stmt = null;
+		int rows;
+		try {
+			conn = this.getConnection();
+			String sql = "UPDATE SM_DEVICE SET DEVICE_NAME = ?,STATUS = ?, LAST_UPDATED_TIME = ?  WHERE ID = ?";
+			stmt = conn.prepareStatement(sql, new String[] {"id"});
+			stmt.setString(1, deviceName);
+			stmt.setString(2, status.toString());
+			stmt.setTimestamp(3, new Timestamp(new Date().getTime()));
+			stmt.setInt(4, deviceId);
 			rows = stmt.executeUpdate();
 			return (rows > 0);
 		} catch (SQLException e) {
@@ -227,6 +252,60 @@ public class DeviceDAOImpl implements DeviceDAO {
 			SeerManagementDAOUtil.cleanupResources(stmt, rs);
 		}
 		return devices;
+	}
+
+	@Override
+	public DeviceRecord getDeviceRecord(String vlanId, String deviceMac) throws SeerManagementException {
+		Connection conn;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		DeviceRecord deviceRecord = new DeviceRecord();
+		try {
+			conn = this.getConnection();
+			String sql = "SELECT d.DEVICE_NAME as DEVICE_NAME, d.SWITCH_ID as SWITCH_ID, d.STATUS as STATUS, d.GROUP_ID as GROUP_ID" +
+					" s.ID as SID, s.OWNER as OWNER, s.DPID as DPID, s.QUOTA as QUOTA, s.BILLING_DAY as BILLING_DAY, s.STATUS as SWITCH_STATUS " +
+					"g.ID as GID, g.GROUP_NAME as GROUP_NAME, g.SWITCH_ID as GSID, g.QUOTA as GQUOTA, g.QUOTA_APP as QUOTA_APP," +
+					"g.PARENTAL_APP as PARENTAL_APP, g.IOT_SECURITY_APP as IOT_SECURITY_APP" +
+					" FROM (SM_DEVICE d LEFT JOIN SM_SWITCH s ON d.SWITCH_ID = s.ID) LEFT JOIN SM_GROUP g ON d.GROUP_ID = g.id  " +
+					"ON WHERE d.MAC_ADDRESS=? AND s.DPID LIKE '%?'";
+			stmt.setString(1, deviceMac);
+			stmt.setString(2, vlanId);
+			stmt = conn.prepareStatement(sql);
+			rs = stmt.executeQuery();
+			if (rs.next()) {
+				Device device = new Device();
+				device.setName(rs.getString("DEVICE_NAME"));
+				device.setSwitchId(rs.getInt("SWITCH_ID"));
+				device.setMac(deviceMac);
+				device.setStatus(Device.Status.valueOf(rs.getString("STATUS")));
+				device.setGroupId(rs.getInt("GROUP_ID"));
+				deviceRecord.setDevice(device);
+
+				Switch aSwitch = new Switch();
+				aSwitch.setId(rs.getInt("SID"));
+				aSwitch.setOwner(rs.getString("OWNER"));
+				aSwitch.setDpId(rs.getString("DPID"));
+				aSwitch.setQuota(rs.getLong("QUOTA"));
+				aSwitch.setBillingDay(rs.getInt("BILLING_DAY"));
+				aSwitch.setStatus(Switch.Status.valueOf(rs.getString(rs.getString("SWITCH_STATUS"))));
+				deviceRecord.setaSwitch(aSwitch);
+
+				Group group = new Group();
+				group.setId(rs.getInt("GID"));
+				group.setGroupName(rs.getString("GROUP_NAME"));
+				group.setSwitchId(rs.getInt("GSID"));
+				group.setQuota(rs.getLong("GQUOTA"));
+				group.setQuotoAppEnabled(rs.getBoolean("QUOTA_APP"));
+				group.setParentalAppEnabled(rs.getBoolean("PARENTAL_APP"));
+				group.setSecurityAppEnabled(rs.getBoolean("IOT_SECURITY_APP"));
+				deviceRecord.setGroup(group);
+			}
+		} catch (SQLException e) {
+			throw new SeerManagementException("Error occurred while listing device information ", e);
+		} finally {
+			SeerManagementDAOUtil.cleanupResources(stmt, rs);
+		}
+		return deviceRecord;
 	}
 
 	private Connection getConnection() throws SQLException {
