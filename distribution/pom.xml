@@ -78,7 +78,7 @@
                                     <classpath refid="maven.compile.classpath" />
                                     <classpath refid="maven.runtime.classpath" />
 
-                                    <fileset file="${basedir}/../resources/dbscripts/parental/h2.sql" />
+                                    <fileset file="${basedir}/../resources/dbscripts/parental-mgt/h2.sql" />
                                 </sql>
                                 <echo message="##################### END ####################" />
                             </tasks>

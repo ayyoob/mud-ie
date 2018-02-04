@@ -1,4 +1,4 @@
-package com.networkseer.sdn.controller.mgt.dto;
+package com.networkseer.common.openflow;
 
 import java.io.Serializable;
 

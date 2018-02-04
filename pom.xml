@@ -20,6 +20,7 @@
     <module>modules/packet-processor/vxlan-listener</module>
     <module>modules/seer-apps/parental-mgt</module>
     <module>modules/seer-apps/device-discovery</module>
+    <module>modules/core/statistic-collector</module>
     <module>distribution</module>
   </modules>
 

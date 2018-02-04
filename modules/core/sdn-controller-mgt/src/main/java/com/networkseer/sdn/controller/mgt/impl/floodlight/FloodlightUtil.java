@@ -1,7 +1,7 @@
 package com.networkseer.sdn.controller.mgt.impl.floodlight;
-import com.networkseer.sdn.controller.mgt.dto.OFFlow.OFAction;
+import com.networkseer.common.openflow.OFFlow.OFAction;
 
-import com.networkseer.sdn.controller.mgt.dto.OFFlow;
+import com.networkseer.common.openflow.OFFlow;
 
 import java.util.ArrayList;
 import java.util.List;

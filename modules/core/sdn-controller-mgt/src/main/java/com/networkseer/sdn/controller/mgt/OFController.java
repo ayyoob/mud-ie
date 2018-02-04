@@ -1,6 +1,6 @@
 package com.networkseer.sdn.controller.mgt;
 
-import com.networkseer.sdn.controller.mgt.dto.OFFlow;
+import com.networkseer.common.openflow.OFFlow;
 import com.networkseer.sdn.controller.mgt.exception.OFControllerException;
 
 import java.util.*;

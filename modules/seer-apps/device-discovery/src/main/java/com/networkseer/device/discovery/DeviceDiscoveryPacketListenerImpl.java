@@ -3,7 +3,7 @@ import com.networkseer.common.packet.PacketConstants;
 import com.networkseer.device.discovery.dhcp.DHCP;
 import com.networkseer.device.discovery.dhcp.DHCPOption;
 import com.networkseer.sdn.controller.mgt.OFController;
-import com.networkseer.sdn.controller.mgt.dto.OFFlow;
+import com.networkseer.common.openflow.OFFlow;
 import com.networkseer.sdn.controller.mgt.exception.OFControllerException;
 import com.networkseer.seer.mgt.dto.Device.Status;
 

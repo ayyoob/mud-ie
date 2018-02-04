@@ -3,7 +3,7 @@ package com.networkseer.sdn.controller.mgt.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networkseer.sdn.controller.mgt.OFController;
-import com.networkseer.sdn.controller.mgt.dto.OFFlow;
+import com.networkseer.common.openflow.OFFlow;
 import com.networkseer.sdn.controller.mgt.exception.OFControllerException;
 import com.networkseer.sdn.controller.mgt.impl.floodlight.*;
 import com.networkseer.sdn.controller.mgt.internal.SdnControllerDataHolder;
