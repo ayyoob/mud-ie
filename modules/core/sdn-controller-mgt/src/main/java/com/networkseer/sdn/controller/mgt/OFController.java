@@ -19,4 +19,6 @@ public interface OFController {
 
 	Map<String, List<OFFlow>> getFlowStats() throws OFControllerException;
 
+	void removeFlows(String dpId, List<OFFlow> ofFlows) throws OFControllerException;
+
 }

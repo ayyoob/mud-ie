@@ -71,6 +71,18 @@ public class SeerMgtServiceImpl implements SeerMgtService {
 	}
 
 	@Override
+	public Switch getSwitchFromVlanId(String vlanId) throws SeerManagementException {
+		try {
+			SeerManagementDAOFactory.openConnection();
+			return switchDAO.getSwitchFromVlanId(vlanId);
+		} catch (Exception e) {
+			throw new SeerManagementException(e);
+		} finally {
+			SeerManagementDAOFactory.closeConnection();
+		}
+	}
+
+	@Override
 	public List<Switch> getSwitches(String username) throws SeerManagementException {
 		try {
 			SeerManagementDAOFactory.openConnection();
@@ -111,6 +123,18 @@ public class SeerMgtServiceImpl implements SeerMgtService {
 		try {
 			SeerManagementDAOFactory.openConnection();
 			return deviceDAO.getDeviceRecord(vlanId,deviceMac);
+		} catch (Exception e) {
+			throw new SeerManagementException(e);
+		} finally {
+			SeerManagementDAOFactory.closeConnection();
+		}
+	}
+
+	@Override
+	public List<DeviceRecord> getIoTDeviceRecord() throws SeerManagementException {
+		try {
+			SeerManagementDAOFactory.openConnection();
+			return deviceDAO.getIoTDeviceRecord();
 		} catch (Exception e) {
 			throw new SeerManagementException(e);
 		} finally {

@@ -16,6 +16,7 @@ public interface SeerMgtService {
 
 	Switch getSwitch(String dpId) throws SeerManagementException;
 
+	Switch getSwitchFromVlanId(String vlanId) throws SeerManagementException;
 
 	List<Switch> getSwitches(String username) throws SeerManagementException;
 
@@ -24,6 +25,8 @@ public interface SeerMgtService {
 	Group getGroup(String dpId, String deviceMac) throws SeerManagementException;
 
 	DeviceRecord getDeviceRecord(String vlanId, String deviceMac) throws SeerManagementException;
+
+	List<DeviceRecord> getIoTDeviceRecord() throws SeerManagementException;
 
 	void updateDeviceName(String deviceName, int deviceId) throws SeerManagementException;
 

@@ -97,6 +97,7 @@ public class DeviceDiscoveryPacketListenerImpl implements PacketListener {
 									OFFlow ofFlow = new OFFlow();
 									ofFlow.setSrcMac(deviceMac);
 									ofFlow.setDstMac(switchMac);
+									ofFlow.setName("D2G-ALL-" + deviceMac);
 									ofFlow.setPriority(COMMON_WAN_PRIORITY);
 									ofFlow.setOfAction(OFFlow.OFAction.NORMAL);
 									ofFlowList.add(ofFlow);
@@ -104,12 +105,14 @@ public class DeviceDiscoveryPacketListenerImpl implements PacketListener {
 									ofFlow = new OFFlow();
 									ofFlow.setSrcMac(switchMac);
 									ofFlow.setDstMac(deviceMac);
+									ofFlow.setName("G2D-ALL-" + deviceMac);
 									ofFlow.setPriority(COMMON_WAN_PRIORITY);
 									ofFlow.setOfAction(OFFlow.OFAction.NORMAL);
 									ofFlowList.add(ofFlow);
 
 									ofFlow = new OFFlow();
 									ofFlow.setDstMac(deviceMac);
+									ofFlow.setName("L2D-ALL-" + deviceMac);
 									ofFlow.setPriority(COMMON_LAN_PRIORITY);
 									ofFlow.setOfAction(OFFlow.OFAction.NORMAL);
 									ofFlowList.add(ofFlow);
@@ -119,12 +122,14 @@ public class DeviceDiscoveryPacketListenerImpl implements PacketListener {
 									String deviceMac =deviceIdentifier.getDeviceMac();
 									OFFlow ofFlow = new OFFlow();
 									ofFlow.setSrcMac(deviceMac);
+									ofFlow.setName("FROM-" + deviceMac);
 									ofFlow.setPriority(COMMON_DROP_PRIORITY);
 									ofFlow.setOfAction(OFFlow.OFAction.DROP);
 									ofFlowList.add(ofFlow);
 
 									ofFlow = new OFFlow();
 									ofFlow.setDstMac(deviceMac);
+									ofFlow.setName("TO-" + deviceMac);
 									ofFlow.setPriority(COMMON_DROP_PRIORITY);
 									ofFlow.setOfAction(OFFlow.OFAction.DROP);
 									ofFlowList.add(ofFlow);

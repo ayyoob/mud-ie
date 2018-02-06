@@ -45,6 +45,37 @@ public class SwitchDAOImpl implements SwitchDAO {
 	}
 
 	@Override
+	public Switch getSwitchFromVlanId(String vlanId) throws SeerManagementException {
+		Connection conn;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		Switch aSwitch = null;
+		try {
+			conn = this.getConnection();
+			String sql = "SELECT * FROM SM_SWITCH WHERE DPID LIKE ? ";
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, "%"+ vlanId);
+			rs = stmt.executeQuery();
+			if (rs.next()) {
+				aSwitch = new Switch();
+				aSwitch.setOwner(rs.getString("OWNER"));
+				aSwitch.setDpId(rs.getString("DPID"));
+				aSwitch.setDateOfCreation(rs.getTimestamp("CREATED_TIME").getTime());
+				aSwitch.setDateOfLastUpdate(rs.getTimestamp("LAST_UPDATED_TIME").getTime());
+				aSwitch.setQuota(rs.getLong("QUOTA"));
+				aSwitch.setBillingDay(rs.getInt("BILLING_DAY"));
+				aSwitch.setStatus(Switch.Status.valueOf(rs.getString(rs.getString("STATUS"))));
+			}
+		} catch (SQLException e) {
+			throw new SeerManagementException("Error occurred while listing switch information for switch vlanId " +
+					"'" + vlanId + "'", e);
+		} finally {
+			SeerManagementDAOUtil.cleanupResources(stmt, rs);
+		}
+		return aSwitch;
+	}
+
+	@Override
 	public List<Switch> getAllSwitches() throws SeerManagementException {
 		Connection conn;
 		PreparedStatement stmt = null;

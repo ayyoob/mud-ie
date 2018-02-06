@@ -17,10 +17,11 @@
     <module>modules/core/user-mgt</module>
     <module>modules/core/seer-mgt</module>
     <module>modules/core/sdn-controller-mgt</module>
+    <module>modules/core/statistic-collector</module>
     <module>modules/packet-processor/vxlan-listener</module>
     <module>modules/seer-apps/parental-mgt</module>
     <module>modules/seer-apps/device-discovery</module>
-    <module>modules/core/statistic-collector</module>
+    <module>modules/seer-apps/iot-security</module>
     <module>distribution</module>
   </modules>
 

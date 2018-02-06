@@ -9,6 +9,8 @@ public interface SwitchDAO {
 
 	Switch getSwitch(String dpId) throws SeerManagementException;
 
+	Switch getSwitchFromVlanId(String vlanId) throws SeerManagementException;
+
 	List<Switch> getAllSwitches() throws SeerManagementException;
 
 	int getSwitchesCount() throws SeerManagementException;

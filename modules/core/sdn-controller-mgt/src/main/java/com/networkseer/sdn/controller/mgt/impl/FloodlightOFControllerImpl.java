@@ -75,6 +75,20 @@ public class FloodlightOFControllerImpl implements OFController {
 	}
 
 	@Override
+	public void removeFlows(String dpId, List<OFFlow> ofFlows) throws OFControllerException {
+		try {
+			FloodlightAPI floodlightAPI = SdnControllerDataHolder.getFloodlightAPI();
+			for (OFFlow ofFlow : ofFlows) {
+				RemoveFlowDTO removeFlowDTO = new RemoveFlowDTO();
+				removeFlowDTO.setName(ofFlow.getName());
+				floodlightAPI.removeFlow(removeFlowDTO);
+			}
+		} catch (FeignException e) {
+			throw new OFControllerException(e);
+		}
+	}
+
+	@Override
 	public void clearAllFlows(String dpId) throws OFControllerException {
 		try {
 			FloodlightAPI floodlightAPI = SdnControllerDataHolder.getFloodlightAPI();
