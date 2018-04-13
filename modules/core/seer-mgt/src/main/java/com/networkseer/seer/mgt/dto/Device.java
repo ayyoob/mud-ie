@@ -10,6 +10,7 @@ public class Device {
 	private int switchId;
 	private Status status;
 	private int groupId;
+	private String property;
 
 	public enum Status {
 		CREATED,
@@ -79,5 +80,13 @@ public class Device {
 
 	public void setGroupId(int groupId) {
 		this.groupId = groupId;
+	}
+
+	public String getProperty() {
+		return property;
+	}
+
+	public void setProperty(String property) {
+		this.property = property;
 	}
 }

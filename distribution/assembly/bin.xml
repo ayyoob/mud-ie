@@ -55,47 +55,40 @@
             </excludes>
         </fileSet>
 
+        <!--<fileSet>-->
+            <!--<directory>.</directory>-->
+            <!--<outputDirectory>${pom.artifactId}-${pom.version}/controller</outputDirectory>-->
+            <!--<excludes>-->
+                <!--<exclude>*/**</exclude>-->
+            <!--</excludes>-->
+        <!--</fileSet>-->
         <fileSet>
             <directory>.</directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/ui</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine</outputDirectory>
             <excludes>
                 <exclude>*/**</exclude>
             </excludes>
         </fileSet>
-        <fileSet>
-            <directory>.</directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/controller</outputDirectory>
-            <excludes>
-                <exclude>*/**</exclude>
-            </excludes>
-        </fileSet>
-        <fileSet>
-            <directory>.</directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector</outputDirectory>
-            <excludes>
-                <exclude>*/**</exclude>
-            </excludes>
-        </fileSet>
-        <fileSet>
-            <directory>.</directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/orchestrator</outputDirectory>
-            <excludes>
-                <exclude>*/**</exclude>
-            </excludes>
-        </fileSet>
+        <!--<fileSet>-->
+            <!--<directory>.</directory>-->
+            <!--<outputDirectory>${pom.artifactId}-${pom.version}/orchestrator</outputDirectory>-->
+            <!--<excludes>-->
+                <!--<exclude>*/**</exclude>-->
+            <!--</excludes>-->
+        <!--</fileSet>-->
 
 
-        <!-- Setting up collector profile files -->
+        <!-- Setting up inspector-engine profile files -->
         <fileSet>
             <directory>.</directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/tmp</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/tmp</outputDirectory>
             <excludes>
                 <exclude>*/**</exclude>
             </excludes>
         </fileSet>
         <fileSet>
             <directory>.</directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/bin/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/bin/</outputDirectory>
             <excludes>
                 <exclude>*/**</exclude>
             </excludes>
@@ -104,7 +97,7 @@
             <directory>
                 ../resources/datasources
             </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/datasources/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/datasources/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
@@ -113,7 +106,7 @@
             <directory>
                 ../resources/dbscripts
             </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/dbscripts/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/dbscripts/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
@@ -122,7 +115,7 @@
             <directory>
                 ../resources/conf
             </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/conf/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/conf/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
@@ -131,7 +124,7 @@
             <directory>
                 ../resources/bin
             </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/bin/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/bin/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
@@ -141,7 +134,7 @@
             <directory>
                 ../modules/core/seer-framework/target/lib
             </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/lib/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
@@ -150,7 +143,7 @@
             <directory>
                 ./target/database
             </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/database/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/database/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
@@ -159,60 +152,65 @@
             <directory>
                 ../modules/core/datasource-mgt/target/lib
             </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/lib/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>
-                ../modules/core/parental-mgt/target/lib
+                ../modules/packet-processor/vxlan-listener/target/lib
             </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/lib/</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/lib/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../modules/core/sdn-controller-mgt/target/lib
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/lib/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+            <excludes>
+                <exclude>jackson-annotations-2.6.0.jar</exclude>
+                <exclude>javassist-3.20.0-GA.jar</exclude>
+                <exclude>jackson-core-2.6.4.jar	</exclude>
+                <exclude>jackson-databind-2.6.4.jar</exclude>
+            </excludes>
         </fileSet>
     </fileSets>
     <files>
         <file>
             <source>../modules/core/seer-framework/target/seer-core-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/plugins</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
             <source>../modules/core/datasource-mgt/target/datasource-mgt-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>../modules/core/user-mgt/target/user-mgt-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/plugins</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
             <source>../modules/core/seer-mgt/target/seer-mgt-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/plugins</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
             <source>../modules/core/sdn-controller-mgt/target/sdn-controller-mgt-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/plugins</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../modules/packet-inspector/vxlan-listener/target/vxlan-listener-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
+            <source>../modules/packet-processor/vxlan-listener/target/vxlan-listener-${pom.version}.jar</source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/plugins</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../modules/packet-inspector/parental-mgt/target/parental-mgt-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>../modules/packet-inspector/device-discovery/target/device-discovery-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/collector/plugins</outputDirectory>
+            <source>../modules/seer-apps/mud-processor/target/mud-processor-${pom.version}.jar</source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/plugins</outputDirectory>
             <fileMode>644</fileMode>
         </file>
     </files>

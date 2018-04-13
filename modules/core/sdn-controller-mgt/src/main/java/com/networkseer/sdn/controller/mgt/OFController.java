@@ -21,4 +21,6 @@ public interface OFController {
 
 	void removeFlows(String dpId, List<OFFlow> ofFlows) throws OFControllerException;
 
+	void addACLs(String dpId, List<OFFlow> ofFlows) throws OFControllerException;
+
 }

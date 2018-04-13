@@ -59,60 +59,6 @@
                 <executions>
                     <execution>
                         <!-- Creating Parental schema -->
-                        <id>create-parental</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <echo message="########### Create Parental H2 Schema ###########" />
-
-                                <property name="db.dir" value="target/database" />
-                                <property name="userid" value="seer" />
-                                <property name="password" value="seer" />
-                                <property name="dbURL" value="jdbc:h2:file:${basedir}/${db.dir}/SeerParental;DB_CLOSE_ON_EXIT=FALSE" />
-
-                                <sql driver="org.h2.Driver" url="${dbURL}" userid="${userid}" password="${password}" autocommit="true" onerror="continue">
-                                    <classpath refid="maven.dependency.classpath" />
-                                    <classpath refid="maven.compile.classpath" />
-                                    <classpath refid="maven.runtime.classpath" />
-
-                                    <fileset file="${basedir}/../resources/dbscripts/parental-mgt/h2.sql" />
-                                </sql>
-                                <echo message="##################### END ####################" />
-                            </tasks>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Creating Parental schema -->
-                        <id>create-usermgt</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <echo message="########### Create UserMgt H2 Schema ###########" />
-
-                                <property name="db.dir" value="target/database" />
-                                <property name="userid" value="seer" />
-                                <property name="password" value="seer" />
-                                <property name="dbURL" value="jdbc:h2:file:${basedir}/${db.dir}/UserMgt;DB_CLOSE_ON_EXIT=FALSE" />
-
-                                <sql driver="org.h2.Driver" url="${dbURL}" userid="${userid}" password="${password}" autocommit="true" onerror="continue">
-                                    <classpath refid="maven.dependency.classpath" />
-                                    <classpath refid="maven.compile.classpath" />
-                                    <classpath refid="maven.runtime.classpath" />
-
-                                    <fileset file="${basedir}/../resources/dbscripts/user-mgt/h2.sql" />
-                                </sql>
-                                <echo message="##################### END ####################" />
-                            </tasks>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Creating Parental schema -->
                         <id>create-seer</id>
                         <phase>prepare-package</phase>
                         <goals>

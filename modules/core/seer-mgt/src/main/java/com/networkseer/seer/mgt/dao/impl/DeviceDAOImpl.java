@@ -25,8 +25,8 @@ public class DeviceDAOImpl implements DeviceDAO {
 		try {
 			conn = this.getConnection();
 			String sql = "INSERT INTO SM_DEVICE(MAC_ADDRESS, DEVICE_NAME, CREATED_TIME, LAST_UPDATED_TIME, " +
-					"SWITCH_ID, STATUS, GROUP_ID) " +
-					"VALUES (?, ?, ?, ?, ?, ?, ?)";
+					"SWITCH_ID, STATUS, GROUP_ID, PROPERTY) " +
+					"VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 			stmt = conn.prepareStatement(sql, new String[] {"id"});
 			stmt.setString(1, device.getMac());
 			stmt.setString(2, device.getName());
@@ -35,6 +35,7 @@ public class DeviceDAOImpl implements DeviceDAO {
 			stmt.setInt(5, device.getSwitchId());
 			stmt.setString(6, device.getStatus().toString());
 			stmt.setInt(7, device.getGroupId());
+			stmt.setString(8, device.getProperty());
 			stmt.executeUpdate();
 
 			rs = stmt.getGeneratedKeys();
@@ -182,6 +183,7 @@ public class DeviceDAOImpl implements DeviceDAO {
 				device.setSwitchId(rs.getInt("SWITCH_ID"));
 				device.setStatus(Device.Status.valueOf(rs.getString("STATUS")));
 				device.setGroupId(rs.getInt("GROUP_ID"));
+				device.setProperty(rs.getString("PROPERTY"));
 			}
 		} catch (SQLException e) {
 			throw new SeerManagementException("Error occurred while listing device information for device id:" +
@@ -213,6 +215,7 @@ public class DeviceDAOImpl implements DeviceDAO {
 				device.setSwitchId(rs.getInt("SWITCH_ID"));
 				device.setStatus(Device.Status.valueOf(rs.getString("STATUS")));
 				device.setGroupId(rs.getInt("GROUP_ID"));
+				device.setProperty(rs.getString("PROPERTY"));
 				devices.add(device);
 			}
 		} catch (SQLException e) {
@@ -244,6 +247,7 @@ public class DeviceDAOImpl implements DeviceDAO {
 				device.setSwitchId(rs.getInt("SWITCH_ID"));
 				device.setStatus(Device.Status.valueOf(rs.getString("STATUS")));
 				device.setGroupId(rs.getInt("GROUP_ID"));
+				device.setProperty(rs.getString("PROPERTY"));
 				devices.add(device);
 			}
 		} catch (SQLException e) {
@@ -262,7 +266,7 @@ public class DeviceDAOImpl implements DeviceDAO {
 		DeviceRecord deviceRecord = new DeviceRecord();
 		try {
 			conn = this.getConnection();
-			String sql = "SELECT d.DEVICE_NAME as DEVICE_NAME, d.SWITCH_ID as SWITCH_ID, d.STATUS as STATUS, d.GROUP_ID as GROUP_ID" +
+			String sql = "SELECT d.DEVICE_NAME as DEVICE_NAME, d.SWITCH_ID as SWITCH_ID, d.STATUS as STATUS, d.GROUP_ID as GROUP_ID, d.PROPERTY as PROPERTY" +
 					" s.ID as SID, s.OWNER as OWNER, s.DPID as DPID, s.QUOTA as QUOTA, s.BILLING_DAY as BILLING_DAY, s.STATUS as SWITCH_STATUS " +
 					"g.ID as GID, g.GROUP_NAME as GROUP_NAME, g.SWITCH_ID as GSID, g.QUOTA as GQUOTA, g.QUOTA_APP as QUOTA_APP," +
 					"g.PARENTAL_APP as PARENTAL_APP, g.IOT_SECURITY_APP as IOT_SECURITY_APP" +
@@ -279,6 +283,7 @@ public class DeviceDAOImpl implements DeviceDAO {
 				device.setMac(deviceMac);
 				device.setStatus(Device.Status.valueOf(rs.getString("STATUS")));
 				device.setGroupId(rs.getInt("GROUP_ID"));
+				device.setProperty(rs.getString("PROPERTY"));
 				deviceRecord.setDevice(device);
 
 				Switch aSwitch = new Switch();
@@ -317,7 +322,7 @@ public class DeviceDAOImpl implements DeviceDAO {
 		try {
 			conn = this.getConnection();
 			String sql = "SELECT d.DEVICE_NAME as DEVICE_NAME, d.MAC_ADDRESS as MAC_ADDRESS d.SWITCH_ID as SWITCH_ID," +
-					" d.STATUS as STATUS, d.GROUP_ID as GROUP_ID" +
+					" d.STATUS as STATUS, d.GROUP_ID as GROUP_ID, d.PROPERTY as PROPERTY" +
 					" s.ID as SID, s.OWNER as OWNER, s.DPID as DPID, s.QUOTA as QUOTA, s.BILLING_DAY as BILLING_DAY, s.STATUS as SWITCH_STATUS " +
 					"g.ID as GID, g.GROUP_NAME as GROUP_NAME, g.SWITCH_ID as GSID, g.QUOTA as GQUOTA, g.QUOTA_APP as QUOTA_APP," +
 					"g.PARENTAL_APP as PARENTAL_APP, g.IOT_SECURITY_APP as IOT_SECURITY_APP" +
@@ -334,6 +339,7 @@ public class DeviceDAOImpl implements DeviceDAO {
 				device.setMac(rs.getString("MAC_ADDRESS"));
 				device.setStatus(Device.Status.valueOf(rs.getString("STATUS")));
 				device.setGroupId(rs.getInt("GROUP_ID"));
+				device.setProperty(rs.getString("PROPERTY"));
 				deviceRecord.setDevice(device);
 
 				Switch aSwitch = new Switch();
@@ -363,6 +369,31 @@ public class DeviceDAOImpl implements DeviceDAO {
 		}
 		return iotDevices;
 	}
+
+	@Override
+	public boolean updateSwitchAndProperty(String property, int switchId, int deviceId) throws SeerManagementException {
+		Connection conn;
+		PreparedStatement stmt = null;
+		int rows;
+		try {
+			conn = this.getConnection();
+			String sql = "UPDATE SM_DEVICE SET PROPERTY = ?, SWITCH_ID = ? , LAST_UPDATED_TIME = ?  WHERE ID = ?";
+			stmt = conn.prepareStatement(sql, new String[] {"id"});
+			stmt.setString(1, property);
+			stmt.setInt(2, switchId);
+			stmt.setTimestamp(3, new Timestamp(new Date().getTime()));
+			stmt.setInt(4, deviceId);
+			rows = stmt.executeUpdate();
+			return (rows > 0);
+		} catch (SQLException e) {
+			throw new SeerManagementException("Error occurred while updating the device. '" +
+					deviceId + "'", e);
+		} finally {
+			SeerManagementDAOUtil.cleanupResources(stmt, null);
+		}
+	}
+
+
 
 	private Connection getConnection() throws SQLException {
 		return SeerManagementDAOFactory.getConnection();

@@ -16,7 +16,7 @@ public interface SeerMgtService {
 
 	Switch getSwitch(String dpId) throws SeerManagementException;
 
-	Switch getSwitchFromVlanId(String vlanId) throws SeerManagementException;
+	Switch getSwitchFromVxlanId(String vxlanId) throws SeerManagementException;
 
 	List<Switch> getSwitches(String username) throws SeerManagementException;
 
@@ -31,4 +31,6 @@ public interface SeerMgtService {
 	void updateDeviceName(String deviceName, int deviceId) throws SeerManagementException;
 
 	void updateDeviceNameAndStatus(String deviceName,Device.Status status, int deviceId) throws SeerManagementException;
+
+	void updateDevicePropertyAndSwitch(String property,  int switchId, int deviceId) throws SeerManagementException;
 }

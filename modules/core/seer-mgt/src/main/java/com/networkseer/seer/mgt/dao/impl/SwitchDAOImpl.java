@@ -45,7 +45,7 @@ public class SwitchDAOImpl implements SwitchDAO {
 	}
 
 	@Override
-	public Switch getSwitchFromVlanId(String vlanId) throws SeerManagementException {
+	public Switch getSwitchFromVxlanId(String vlanId) throws SeerManagementException {
 		Connection conn;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;

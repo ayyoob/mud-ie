@@ -5,6 +5,7 @@ import com.networkseer.common.packet.PacketConstants;
 import com.networkseer.common.packet.PacketListener;
 import com.networkseer.common.packet.SeerPacket;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
@@ -12,6 +13,7 @@ import org.pcap4j.packet.EthernetPacket;
 import org.pcap4j.packet.IpV4Packet;
 import org.pcap4j.packet.TcpPacket;
 import org.pcap4j.packet.UdpPacket;
+import org.pcap4j.packet.namednumber.EtherType;
 import org.pcap4j.packet.namednumber.IpNumber;
 import org.pcap4j.util.ByteArrays;
 
@@ -21,23 +23,17 @@ public class IncommingPacketHandler extends SimpleChannelInboundHandler<Datagram
 	@Override
 	protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket packet) throws Exception {
 		ByteBuf byteBuf = packet.content();
-		byte[] bytes= byteBuf.array();
-		boolean dropPacket = false;
-		EthernetPacket ethernetPacket = EthernetPacket.newPacket(bytes, 8, byteBuf.capacity());
+		byte[] bytes = ByteBufUtil.getBytes(byteBuf);
+		EthernetPacket ethernetPacket = EthernetPacket.newPacket(bytes, 8, bytes.length-8);
 		EthernetPacket.EthernetHeader ethernetHeader = ethernetPacket.getHeader();
 		SeerPacket seerPacket = new SeerPacket();
 		byte vlanId[] = {bytes[4],bytes[5], bytes[6]};
-		seerPacket.setVlanId(ByteArrays.toHexString(vlanId, ":"));
+		seerPacket.setVxlanId(ByteArrays.toHexString(vlanId, ""));
 		seerPacket.setSrcMac(ethernetHeader.getSrcAddr().toString());
 		seerPacket.setDstMac(ethernetHeader.getDstAddr().toString());
 		seerPacket.setEthType(ethernetPacket.getHeader().getType().toString());
-		long rawAddressValue = bytesToLong(ethernetHeader.getDstAddr().getAddress());
-		if (isBroadcast(rawAddressValue) || isMulticast(rawAddressValue)) {
-			dropPacket = true;
-			seerPacket.setDstIgnore(true);
-		}
 
-		if (PacketConstants.IPV4_PROTO.equals(ethernetHeader.getType().toString())) {
+		if (EtherType.IPV4 == (ethernetHeader.getType())) {
 			IpV4Packet ipV4Packet = (IpV4Packet) ethernetPacket.getPayload();
 			IpV4Packet.IpV4Header ipV4Header = ipV4Packet.getHeader();
 			seerPacket.setSrcIp(ipV4Header.getSrcAddr().getHostAddress());
@@ -49,28 +45,16 @@ public class IncommingPacketHandler extends SimpleChannelInboundHandler<Datagram
 				seerPacket.setDstPort(tcpPacket.getHeader().getDstPort().valueAsString());
 				seerPacket.setTcpFlag(tcpPacket.getHeader().getSyn(),tcpPacket.getHeader().getAck());
 				seerPacket.setPayload(tcpPacket.getPayload().getRawData());
-				dropPacket = false;
 			} else if (ipV4Header.getProtocol().valueAsString().equals(IpNumber.UDP.valueAsString()) ) {
 				UdpPacket udpPacket = (UdpPacket) ipV4Packet.getPayload();
 				seerPacket.setSrcPort(udpPacket.getHeader().getSrcPort().valueAsString());
 				seerPacket.setDstPort(udpPacket.getHeader().getDstPort().valueAsString());
 				seerPacket.setPayload(udpPacket.getPayload().getRawData());
-//				if (dropPacket) {
-//					if (PacketConstants.DHCP_PORT.equals(udpPacket.getHeader().getDstPort().valueAsString())) {
-//						dropPacket =false;
-//					}
-//				}
-				dropPacket = false;
-			}
-
-		}
-//		Drop packets if its multicast or broadcast (except dhcp)
-		if (!dropPacket) {
-			for (PacketListener packetListener : VxLanListenerDataHolder.getPacketListeners()) {
-				packetListener.processPacket(seerPacket);
 			}
 		}
-
+		for (PacketListener packetListener : VxLanListenerDataHolder.getPacketListeners()) {
+			packetListener.processPacket(seerPacket);
+		}
 	}
 
 	private boolean isBroadcast(long rawValue) {

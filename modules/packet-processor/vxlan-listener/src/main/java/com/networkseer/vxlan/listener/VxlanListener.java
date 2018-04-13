@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * linux version should be > 3.9
  */
 public class VxlanListener extends Thread {
-	private static final int VXLAN_PORT = 4976;
+	private static final int VXLAN_PORT = 4789;
 	private static final Logger log = LoggerFactory.getLogger(VxlanListener.class);
 	private static final String INET_HOST_ADDR = "0.0.0.0";
 	private static final int THREADS = Runtime.getRuntime().availableProcessors() * 2; // Default EventLoopGroup Size

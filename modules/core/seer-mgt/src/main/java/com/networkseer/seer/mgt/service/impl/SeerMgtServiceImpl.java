@@ -71,10 +71,10 @@ public class SeerMgtServiceImpl implements SeerMgtService {
 	}
 
 	@Override
-	public Switch getSwitchFromVlanId(String vlanId) throws SeerManagementException {
+	public Switch getSwitchFromVxlanId(String vxlanId) throws SeerManagementException {
 		try {
 			SeerManagementDAOFactory.openConnection();
-			return switchDAO.getSwitchFromVlanId(vlanId);
+			return switchDAO.getSwitchFromVxlanId(vxlanId);
 		} catch (Exception e) {
 			throw new SeerManagementException(e);
 		} finally {
@@ -171,4 +171,17 @@ public class SeerMgtServiceImpl implements SeerMgtService {
 		}
 	}
 
+	@Override
+	public void updateDevicePropertyAndSwitch(String property, int switchId,  int deviceId) throws SeerManagementException {
+		try {
+			SeerManagementDAOFactory.beginTransaction();
+			deviceDAO.updateSwitchAndProperty(property,switchId, deviceId);
+			SeerManagementDAOFactory.commitTransaction();
+		} catch (Exception e) {
+			SeerManagementDAOFactory.rollbackTransaction();
+			throw new SeerManagementException("Error occurred while updating device name", e);
+		} finally {
+			SeerManagementDAOFactory.closeConnection();
+		}
+	}
 }

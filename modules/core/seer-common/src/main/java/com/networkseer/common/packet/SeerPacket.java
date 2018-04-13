@@ -2,7 +2,7 @@ package com.networkseer.common.packet;
 
 public class SeerPacket {
 
-    private String vlanId;
+    private String vxlanId;
     private String srcMac;
     private String dstMac;
     private String ethType;
@@ -12,15 +12,6 @@ public class SeerPacket {
     private String srcPort;
     private String dstPort;
     private byte[] payload;
-    private boolean isDstIgnore;
-
-    public boolean isDstIgnore() {
-        return isDstIgnore;
-    }
-
-    public void setDstIgnore(boolean dstIgnore) {
-        isDstIgnore = dstIgnore;
-    }
 
     public void setTcpFlag(Flag tcpFlag) {
         this.tcpFlag = tcpFlag;
@@ -48,12 +39,12 @@ public class SeerPacket {
         }
     }
 
-    public String getVlanId() {
-        return vlanId;
+    public String getVxlanId() {
+        return vxlanId;
     }
 
-    public void setVlanId(String vlanId) {
-        this.vlanId = vlanId;
+    public void setVxlanId(String vxlanId) {
+        this.vxlanId = vxlanId;
     }
 
     public String getSrcMac() {

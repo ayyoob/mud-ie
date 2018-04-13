@@ -30,4 +30,6 @@ public interface DeviceDAO {
 
 	boolean updateDeviceNameAndStatus(String deviceName,Device.Status status, int deviceId) throws SeerManagementException;
 
+	boolean updateSwitchAndProperty(String property, int switchId, int deviceId) throws SeerManagementException;
+
 }

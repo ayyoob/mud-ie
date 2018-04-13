@@ -3,6 +3,8 @@ package com.networkseer.seer.mgt.internal;
 import com.networkseer.common.SeerPlugin;
 import com.networkseer.common.config.SeerConfiguration;
 import com.networkseer.seer.mgt.dao.SeerManagementDAOFactory;
+import com.networkseer.seer.mgt.dto.Switch;
+import com.networkseer.seer.mgt.exception.SeerManagementException;
 import com.networkseer.seer.mgt.service.SeerMgtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,21 @@ public class SeerManagmentSeerPluginImpl implements SeerPlugin {
 			seerMgtService = provider;
 		}
 		SeerManagementDataHolder.setSeerMgtService(seerMgtService);
+		if (seerConfiguration.getSwitches() != null) {
+			for (String dpId : seerConfiguration.getSwitches()) {
+				try {
+					if (seerMgtService.getSwitch(dpId) == null) {
+						Switch aswitch = new Switch();
+						aswitch.setStatus(Switch.Status.ACTIVE);
+						aswitch.setDpId(dpId);
+						seerMgtService.addSwitch(aswitch);
+					}
+				} catch (SeerManagementException e) {
+					log.error("Failed to add the switch", e);
+				}
+			}
+		}
+
 	}
 	@Override
 	public void deactivate() {
