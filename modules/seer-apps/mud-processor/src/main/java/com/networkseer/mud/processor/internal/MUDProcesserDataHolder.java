@@ -5,11 +5,13 @@ import com.networkseer.sdn.controller.mgt.OFController;
 import com.networkseer.seer.mgt.service.SeerMgtService;
 
 import java.util.List;
+import java.util.Map;
 
 public class MUDProcesserDataHolder {
 	private static SeerMgtService seerMgtService;
 	private static OFController ofController;
 	private static List<MUDController> controllers;
+	private static Map<String, String> mudDevices;
 
 	public static SeerMgtService getSeerMgtService() {
 		return seerMgtService;
@@ -42,5 +44,13 @@ public class MUDProcesserDataHolder {
 			}
 		}
 		return null;
+	}
+
+	public static Map<String, String> getMudDevices() {
+		return mudDevices;
+	}
+
+	public static void setMudDevices(Map<String, String> mudDevices) {
+		MUDProcesserDataHolder.mudDevices = mudDevices;
 	}
 }

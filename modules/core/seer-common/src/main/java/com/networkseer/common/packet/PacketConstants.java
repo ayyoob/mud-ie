@@ -3,7 +3,7 @@ package com.networkseer.common.packet;
 public class PacketConstants {
 	public static final String IPV4_PROTO = "IPv4";
 	public static final String ARP_PROTO = "ARP";
-	public static final String TCP_PROTO ="TCP";
+	public static final String TCP_PROTO ="6";
 	public static final String UDP_PROTO ="17";
 	public static final String DNS_PORT ="53";
 	public static final String DHCP_PORT ="67";

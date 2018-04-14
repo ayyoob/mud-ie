@@ -65,6 +65,6 @@ logging:
       maxFileSize: 10Mb
 
 switches:
-  - "0xf4f26d229e7c"
+  - "f4f26d229e7c"
 
 swagger: True

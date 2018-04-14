@@ -1,5 +1,6 @@
 package com.networkseer.mud.processor.internal;
 
+import com.networkseer.common.SeerDirectory;
 import com.networkseer.common.SeerPlugin;
 import com.networkseer.common.config.SeerConfiguration;
 import com.networkseer.sdn.controller.mgt.OFController;
@@ -7,9 +8,8 @@ import com.networkseer.seer.mgt.service.SeerMgtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
+import java.io.*;
+import java.util.*;
 
 public class MUDProcessorSeerPluginImpl implements SeerPlugin {
 
@@ -30,6 +30,36 @@ public class MUDProcessorSeerPluginImpl implements SeerPlugin {
 			ofControllerProvider = ofController;
 		}
 		MUDProcesserDataHolder.setOfController(ofControllerProvider);
+
+		String mudDevicePath = SeerDirectory.getConfigDirectory() + File.separator + "mud-device-list.csv";
+
+		BufferedReader br = null;
+		String line = "";
+		String cvsSplitBy = ",";
+		Map<String, String> mudDevices = new HashMap<>();
+		try {
+
+			br = new BufferedReader(new FileReader(mudDevicePath));
+			while ((line = br.readLine()) != null) {
+				// use comma as separator
+				String[] entries = line.split(cvsSplitBy);
+				if (entries.length == 2) {
+					mudDevices.put(entries[0], entries[1]);
+				}
+			}
+
+		} catch (IOException e) {
+			log.error("Failed to process mud-device-list.csv file", e);
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					log.error("Failed to close process mud-device-list.csv file", e);
+				}
+			}
+		}
+		MUDProcesserDataHolder.setMudDevices(mudDevices);
 	}
 
 	@Override

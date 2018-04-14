@@ -262,6 +262,7 @@ do
     -Djava.command="$JAVACMD" \
     -Dseer.home="$SEER_HOME" \
     -Dseer.config.dir.path="$SEER_HOME/conf" \
+    -Dfaucet.config.dir.path="/Users/ayyoobhamza/Desktop/mud-setup/faucet/inst" \
     -Dseer.datasources.dir.path="$SEER_HOME/datasources" \
     -Dseer.logs.dir.path="$SEER_HOME/logs" \
     -Dfile.encoding=UTF8 \
