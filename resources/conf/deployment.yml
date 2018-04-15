@@ -32,11 +32,11 @@ server:
 #      trustStoreType: JKS
 
 controller:
-  type: floodlight
+  type: faucet
 #  hostname: ${CTR_HOSTNAME:-localhost}
 #  port: ${CTR_PORT:-8080}
   hostname: localhost
-  port: 8080
+  port: 4242
 
 mudControllers:
   - id: "urn:ietf:params:mud:dns"

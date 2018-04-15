@@ -1,5 +1,6 @@
 package com.networkseer.sdn.controller.mgt.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -7,6 +8,7 @@ import com.networkseer.sdn.controller.mgt.OFController;
 import com.networkseer.common.openflow.OFFlow;
 import com.networkseer.sdn.controller.mgt.exception.OFControllerException;
 import com.networkseer.sdn.controller.mgt.impl.faucet.*;
+import com.networkseer.sdn.controller.mgt.internal.SdnControllerDataHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +27,9 @@ public class FaucetOFControllerImpl implements OFController {
 	private static final String SWITCH_ACL_FILE_POSTFIX = "-acl-mud.yaml";
 	private static final String DEVICE_ACL_FILE_POSTFIX = "-device-acl-mud.yaml";
 	private static final Logger log = LoggerFactory.getLogger(FaucetOFControllerImpl.class);
+	private static final String FAUCET_REACTIVE_FLOW_SUBJECT = "ryu.msg";
 	private static final String FAUCET_CONFIG_DIR = "faucet.config.dir.path";
-	private static String faucetConfigPath= "/Users/ayyoobhamza/Desktop/mud-setup/faucet/inst";
-
-
+	private static String faucetConfigPath;
 
 	public FaucetOFControllerImpl () {
 		faucetConfigPath = System.getProperty(FAUCET_CONFIG_DIR);
@@ -36,6 +37,15 @@ public class FaucetOFControllerImpl implements OFController {
 
 	@Override
 	public void addFlow(String dpId, OFFlow ofFlow) throws OFControllerException {
+		AddFlowMsg addFlowMsg = new AddFlowMsg();
+		addFlowMsg.setDpId(dpId);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String msg = mapper.writeValueAsString(addFlowMsg);
+			SdnControllerDataHolder.getNatsClient().publish(FAUCET_REACTIVE_FLOW_SUBJECT, msg);
+		} catch (IOException e) {
+			throw new OFControllerException(e);
+		}
 
 	}
 

@@ -125,6 +125,11 @@
         <artifactId>httpclient</artifactId>
         <version>${http.client.version}</version>
       </dependency>
+      <dependency>
+        <groupId>io.nats</groupId>
+        <artifactId>jnats</artifactId>
+        <version>${jnats.version}</version>
+      </dependency>
 
     </dependencies>
   </dependencyManagement>
@@ -144,6 +149,7 @@
     <pcap4j.version>1.7.3</pcap4j.version>
     <guava.version>22.0</guava.version>
     <http.client.version>4.5.2</http.client.version>
+    <jnats.version>1.0</jnats.version>
   </properties>
 
   <build>

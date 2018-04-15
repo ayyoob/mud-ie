@@ -113,6 +113,15 @@
         </fileSet>
         <fileSet>
             <directory>
+                ../resources/faucet
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/faucet/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
                 ../resources/conf
             </directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/conf/</outputDirectory>

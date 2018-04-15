@@ -50,6 +50,10 @@
       <groupId>io.github.openfeign</groupId>
       <artifactId>feign-slf4j</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.nats</groupId>
+      <artifactId>jnats</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

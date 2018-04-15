@@ -1,0 +1,44 @@
+include-optional:
+    - f4f26d229e7c-mud-acl.yaml
+
+dps:
+    switch-1:
+        dp_id: 0xf4f26d229e7c
+        timeout: 3600
+        arp_neighbor_timeout: 3600
+        interfaces:
+            1:
+                native_vlan: 100
+                acls_in: [mud-mirror-acl,default-allow-acl]
+            7:
+                native_vlan: 100
+                acls_in: [mud-mirror-acl,default-allow-acl]
+            5:
+                output_only: True
+            4294967294:
+                native_vlan: 100
+            
+vlans:
+    100:
+
+acls:
+    mud-mirror-acl:
+        - rule:
+            eth_dst: 'ff:ff:ff:ff:ff:ff'
+            eth_type: 0x800
+            ip_proto: 17
+            udp_dst: 67
+            actions:
+                allow: 1
+                mirror: 5
+        - rule:
+            ipv4_dst: '8.8.8.8'
+            eth_type: 0x800
+            ip_proto: 1
+            actions:
+                allow: 1
+                mirror: 5
+    default-allow-acl:
+        - rule:
+            actions:
+                allow: 1

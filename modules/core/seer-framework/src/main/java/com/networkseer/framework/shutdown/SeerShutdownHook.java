@@ -21,7 +21,11 @@ public class SeerShutdownHook extends Thread {
         List<SeerPlugin> seerModules = SeerCore.getSeerPlugins();
         for (SeerPlugin seerModule: seerModules) {
             if (activatedSeerModules.get(seerModule.getClass().getCanonicalName()) != null) {
-                seerModule.deactivate();
+                try {
+                    seerModule.deactivate();
+                } catch (Exception e) {
+                    log.error("Deactivation error", e);
+                }
             }
         }
     }
