@@ -1,6 +1,7 @@
 import os
 import asyncio
 import signal
+import time
 from nats.aio.client import Client as NATS
 
 
@@ -21,15 +22,21 @@ class NatsClient:
       print("Received a message on '{subject} {reply}': {data}".format(
         subject=subject, reply=reply, data=data))
 
+    servers = [self.url]
     options = {
       "io_loop": loop,
-      "servers": [self.url],
+      "servers": servers,
     }
-    try:
-      client = NATS()
-      yield from client.connect(options)
-    except Exception as e:
-      pass
+    is_connected = False
+    while(not is_connected):
+      try:
+        client = NATS()
+        yield from client.connect(**options)
+        is_connected = True
+      except Exception as e:
+        print("failed to connect..retrying", e)
+        time.sleep(1)
+        pass
 
 
     def signal_handler():
@@ -53,16 +60,18 @@ class NatsClient:
 
   def publish_msg(self, subject, msg, loop):
     client = NATS()
+    servers = [self.url]
     options = {
       "io_loop": loop,
-      "servers": [self.url],
+      "servers": servers,
     }
     try:
-      yield from client.connect(options)
-      yield from client.publish(subject, msg.encode())
+      yield from client.connect(**options)
+      yield from client.publish(subject, msg)
       yield from client.flush()
       yield from client.close()
     except Exception as e:
+      print(e)
       pass
 
   def publish(self, subject, msg):
@@ -89,4 +98,3 @@ class NatsClient:
     for flow_msg in flow_msgs:
       flow_msg.datapath = ryu_dp
       ryu_dp.send_msg(flow_msg)
-

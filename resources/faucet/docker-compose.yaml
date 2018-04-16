@@ -39,6 +39,14 @@ services:
 #            - influxdb
 #            - prometheus
 
+    gnatsd:
+        restart: always
+        image: 'nats:latest'
+        ports:
+            - '4222:4222'
+            - '8222:8222'
+            - '6222:6222'
+
     gauge:
         restart: always
         image: 'faucet/gauge:latest'
@@ -68,13 +76,6 @@ services:
         environment:
             FAUCET_CONFIG_STAT_RELOAD: '${FAUCET_CONFIG_STAT_RELOAD}'
             FAUCET_EVENT_SOCK: '1'
-            NATS_URL: 'nats://localhost:4222'
-
-
-    gnatsd:
-        restart: always
-        image: 'nats:latest'
-        ports:
-            - '4222:4222'
-            - '8222:8222'
-            - '6222:6222'
+            NATS_URL: 'nats://gnatsd:4222'
+        links:
+            - gnatsd

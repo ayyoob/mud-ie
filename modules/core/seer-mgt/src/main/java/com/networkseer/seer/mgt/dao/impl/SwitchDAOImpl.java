@@ -27,13 +27,14 @@ public class SwitchDAOImpl implements SwitchDAO {
 			rs = stmt.executeQuery();
 			if (rs.next()) {
 				aSwitch = new Switch();
+				aSwitch.setId(rs.getInt("ID"));
 				aSwitch.setOwner(rs.getString("OWNER"));
 				aSwitch.setDpId(dpId);
 				aSwitch.setDateOfCreation(rs.getTimestamp("CREATED_TIME").getTime());
 				aSwitch.setDateOfLastUpdate(rs.getTimestamp("LAST_UPDATED_TIME").getTime());
 				aSwitch.setQuota(rs.getLong("QUOTA"));
 				aSwitch.setBillingDay(rs.getInt("BILLING_DAY"));
-				aSwitch.setStatus(Switch.Status.valueOf(rs.getString(rs.getString("STATUS"))));
+				aSwitch.setStatus(Switch.Status.valueOf(rs.getString("STATUS")));
 			}
 		} catch (SQLException e) {
 			throw new SeerManagementException("Error occurred while listing switch information for switch " +
@@ -58,13 +59,14 @@ public class SwitchDAOImpl implements SwitchDAO {
 			rs = stmt.executeQuery();
 			if (rs.next()) {
 				aSwitch = new Switch();
+				aSwitch.setId(rs.getInt("ID"));
 				aSwitch.setOwner(rs.getString("OWNER"));
 				aSwitch.setDpId(rs.getString("DPID"));
 				aSwitch.setDateOfCreation(rs.getTimestamp("CREATED_TIME").getTime());
 				aSwitch.setDateOfLastUpdate(rs.getTimestamp("LAST_UPDATED_TIME").getTime());
 				aSwitch.setQuota(rs.getLong("QUOTA"));
 				aSwitch.setBillingDay(rs.getInt("BILLING_DAY"));
-				aSwitch.setStatus(Switch.Status.valueOf(rs.getString(rs.getString("STATUS"))));
+				aSwitch.setStatus(Switch.Status.valueOf(rs.getString("STATUS")));
 			}
 		} catch (SQLException e) {
 			throw new SeerManagementException("Error occurred while listing switch information for switch vlanId " +
@@ -88,13 +90,14 @@ public class SwitchDAOImpl implements SwitchDAO {
 			rs = stmt.executeQuery();
 			while (rs.next()) {
 				Switch aSwitch = new Switch();
+				aSwitch.setId(rs.getInt("ID"));
 				aSwitch.setOwner(rs.getString("OWNER"));
 				aSwitch.setDpId(rs.getString("DPID"));
 				aSwitch.setDateOfCreation(rs.getTimestamp("CREATED_TIME").getTime());
 				aSwitch.setDateOfLastUpdate(rs.getTimestamp("LAST_UPDATED_TIME").getTime());
 				aSwitch.setQuota(rs.getLong("QUOTA"));
 				aSwitch.setBillingDay(rs.getInt("BILLING_DAY"));
-				aSwitch.setStatus(Switch.Status.valueOf(rs.getString(rs.getString("STATUS"))));
+				aSwitch.setStatus(Switch.Status.valueOf(rs.getString("STATUS")));
 				aSwitchs.add(aSwitch);
 			}
 		} catch (SQLException e) {
@@ -140,13 +143,14 @@ public class SwitchDAOImpl implements SwitchDAO {
 			rs = stmt.executeQuery();
 			while (rs.next()) {
 				Switch aSwitch = new Switch();
+				aSwitch.setId(rs.getInt("ID"));
 				aSwitch.setOwner(rs.getString("OWNER"));
 				aSwitch.setDpId(rs.getString("DPID"));
 				aSwitch.setDateOfCreation(rs.getTimestamp("CREATED_TIME").getTime());
 				aSwitch.setDateOfLastUpdate(rs.getTimestamp("LAST_UPDATED_TIME").getTime());
 				aSwitch.setQuota(rs.getLong("QUOTA"));
 				aSwitch.setBillingDay(rs.getInt("BILLING_DAY"));
-				aSwitch.setStatus(Switch.Status.valueOf(rs.getString(rs.getString("STATUS"))));
+				aSwitch.setStatus(Switch.Status.valueOf(rs.getString("STATUS")));
 				aSwitchs.add(aSwitch);
 			}
 		} catch (SQLException e) {
@@ -166,8 +170,8 @@ public class SwitchDAOImpl implements SwitchDAO {
 		try {
 			conn = this.getConnection();
 			String sql = "INSERT INTO SM_SWITCH(OWNER, DPID, CREATED_TIME, LAST_UPDATED_TIME, " +
-					"QUOTA, BILLING_DAY, STATUS) " +
-					"VALUES (?, ?, ?, ?, ?, ?, ?)";
+					"QUOTA, BILLING_DAY, BILLING_DATE, STATUS) " +
+					"VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 			stmt = conn.prepareStatement(sql, new String[] {"id"});
 			stmt.setString(1, smSwitch.getOwner());
 			stmt.setString(2, smSwitch.getDpId());
@@ -175,7 +179,8 @@ public class SwitchDAOImpl implements SwitchDAO {
 			stmt.setTimestamp(4, new Timestamp(new Date().getTime()));
 			stmt.setLong(5, smSwitch.getQuota());
 			stmt.setInt(6, smSwitch.getBillingDay());
-			stmt.setString(7, smSwitch.getStatus().toString());
+			stmt.setTimestamp(7, smSwitch.getBillingDate());
+			stmt.setString(8, smSwitch.getStatus().toString());
 			stmt.executeUpdate();
 
 			rs = stmt.getGeneratedKeys();

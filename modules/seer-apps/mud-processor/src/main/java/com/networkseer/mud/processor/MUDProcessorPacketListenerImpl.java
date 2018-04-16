@@ -55,13 +55,17 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 		ScheduledExecutorService deviceExecutor = Executors.newScheduledThreadPool(1);
 
 		Runnable task = () -> {
-			DeviceIdentifier deviceIdentifier = deviceQueue.remove();
+			DeviceIdentifier deviceIdentifier = null;
+			if (deviceQueue.size() > 0) {
+				deviceIdentifier = deviceQueue.remove();
+			}
 
 			while (deviceIdentifier != null) {
 				try {
 					DeviceRecord deviceRecord = MUDProcesserDataHolder.getSeerMgtService()
 							.getDeviceRecord(deviceIdentifier.getVxlanId(), deviceIdentifier.getDeviceMac());
-					if (deviceRecord.getDevice() == null || deviceRecord.getDevice().getStatus() != Status.IDENTIFIED) {
+					if (deviceRecord == null || deviceRecord.getDevice() == null
+							|| deviceRecord.getDevice().getStatus() != Status.IDENTIFIED) {
 						String mudPayload = getMUDContent(deviceIdentifier.getMudUrl());
 						Switch aSwitch = MUDProcesserDataHolder
 								.getSeerMgtService().getSwitchFromVxlanId(deviceIdentifier.getVxlanId());
@@ -70,13 +74,14 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 						device.setMac(deviceIdentifier.getDeviceMac());
 						device.setSwitchId(aSwitch.getId());
 						device.setStatus(Status.IDENTIFIED);
+						device.setName(deviceIdentifier.getName());
 						DeviceMudWrapper deviceMudWrapper = new DeviceMudWrapper();
 						deviceMudWrapper.setVlan(vLan);
 						deviceMudWrapper.setMudProfile(mudPayload);
 						device.setProperty(deviceMudWrapper.toString());
-						MUDProcesserDataHolder.getSeerMgtService().addDevice(device);
 						addMudConfigs(mudPayload, deviceMudWrapper.getVlan(), deviceIdentifier.getDeviceMac(),
 								SeerUtil.getSwitchMacFromDpID(deviceRecord.getaSwitch().getDpId()));
+						MUDProcesserDataHolder.getSeerMgtService().addDevice(device);
 
 
 					} else {
@@ -136,10 +141,13 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 							}
 						}
 					}
-				} catch (SeerManagementException | IOException | OFControllerException e) {
+				} catch (Exception e) {
 					log.error(e.getMessage(), e);
 				}
-				deviceIdentifier = deviceQueue.remove();
+				deviceIdentifier = null;
+				if (deviceQueue.size() > 0) {
+					deviceIdentifier = deviceQueue.remove();
+				}
 			}
 		};
 		deviceExecutor.scheduleWithFixedDelay(task, 10, 20, TimeUnit.SECONDS);
@@ -163,8 +171,21 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 		}
 	}
 
-	private int getDeviceVLAN(String deviceMac) {
-		return 100;
+	private int getDeviceVLAN(String deviceMac) throws OFControllerException {
+		if (MUDProcesserDataHolder.getOfController().getHostInfo(deviceMac) != null) {
+			return MUDProcesserDataHolder.getOfController().getHostInfo(deviceMac).getVlanId();
+		} else {
+			try {
+				//wait till host data is updated.
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				//ignore
+			}
+			if (MUDProcesserDataHolder.getOfController().getHostInfo(deviceMac) != null) {
+				return MUDProcesserDataHolder.getOfController().getHostInfo(deviceMac).getVlanId();
+			}
+		}
+		throw new OFControllerException("vlan not found for " + deviceMac);
 	}
 
 	private void addMudConfigs(String mudPayload, int vLan, String deviceMac, String switchMac) throws IOException,
@@ -208,6 +229,13 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 					String mudUrl = new String(dhcpOption.getData());
 					DeviceIdentifier deviceIdentifier = new DeviceIdentifier(seerPacket.getVxlanId(), srcMac);
 					deviceIdentifier.setMudUrl(mudUrl);
+					dhcpOption = dhcp.getOption(
+							DHCP.DHCPOptionCode.OptionCode_Hostname);
+					if (dhcpOption != null) {
+						deviceIdentifier.setName(new String(dhcpOption.getData()));
+					} else {
+						deviceIdentifier.setName("");
+					}
 					deviceQueue.add(deviceIdentifier);
 				}
 			}
@@ -607,6 +635,7 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 		private String vxlanId;
 		private String deviceMac;
 		private String mudUrl;
+		private String name;
 
 		public DeviceIdentifier(String vlanId, String deviceMac) {
 			this.vxlanId = vlanId;
@@ -631,6 +660,14 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 
 		public String getDeviceMac() {
 			return deviceMac;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
 		}
 
 		public void setDeviceMac(String deviceMac) {

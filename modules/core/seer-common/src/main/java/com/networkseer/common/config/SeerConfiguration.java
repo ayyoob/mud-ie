@@ -34,4 +34,12 @@ public class SeerConfiguration extends Configuration {
 	public void setSwitches(List<String> switches) {
 		this.switches = switches;
 	}
+
+	public List<MUDController> getMudControllers() {
+		return mudControllers;
+	}
+
+	public void setMudControllers(List<MUDController> mudControllers) {
+		this.mudControllers = mudControllers;
+	}
 }

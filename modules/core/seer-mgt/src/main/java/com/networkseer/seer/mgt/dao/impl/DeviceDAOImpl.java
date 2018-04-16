@@ -203,8 +203,9 @@ public class DeviceDAOImpl implements DeviceDAO {
 		try {
 			conn = this.getConnection();
 			String sql = "SELECT * FROM SM_DEVICE WHERE SWITCH_ID=?";
-			stmt.setInt(1, switchId);
 			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, switchId);
+
 			rs = stmt.executeQuery();
 			while (rs.next()) {
 				Device device = new Device();
@@ -235,8 +236,9 @@ public class DeviceDAOImpl implements DeviceDAO {
 		try {
 			conn = this.getConnection();
 			String sql = "SELECT * FROM SM_DEVICE WHERE SWITCH_ID=(SELECT ID FROM SM_SWITCH WHERE DPID=?)";
-			stmt.setString(1, dpId);
 			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, dpId);
+
 			rs = stmt.executeQuery();
 			while (rs.next()) {
 				Device device = new Device();
@@ -266,15 +268,16 @@ public class DeviceDAOImpl implements DeviceDAO {
 		DeviceRecord deviceRecord = new DeviceRecord();
 		try {
 			conn = this.getConnection();
-			String sql = "SELECT d.DEVICE_NAME as DEVICE_NAME, d.SWITCH_ID as SWITCH_ID, d.STATUS as STATUS, d.GROUP_ID as GROUP_ID, d.PROPERTY as PROPERTY" +
-					" s.ID as SID, s.OWNER as OWNER, s.DPID as DPID, s.QUOTA as QUOTA, s.BILLING_DAY as BILLING_DAY, s.STATUS as SWITCH_STATUS " +
+			String sql = "SELECT d.DEVICE_NAME as DEVICE_NAME, d.SWITCH_ID as SWITCH_ID, d.STATUS as STATUS, d.GROUP_ID as GROUP_ID, d.PROPERTY as PROPERTY," +
+					" s.ID as SID, s.OWNER as OWNER, s.DPID as DPID, s.QUOTA as QUOTA, s.BILLING_DAY as BILLING_DAY, s.STATUS as SWITCH_STATUS, " +
 					"g.ID as GID, g.GROUP_NAME as GROUP_NAME, g.SWITCH_ID as GSID, g.QUOTA as GQUOTA, g.QUOTA_APP as QUOTA_APP," +
 					"g.PARENTAL_APP as PARENTAL_APP, g.IOT_SECURITY_APP as IOT_SECURITY_APP" +
 					" FROM (SM_DEVICE d LEFT JOIN SM_SWITCH s ON d.SWITCH_ID = s.ID) LEFT JOIN SM_GROUP g ON d.GROUP_ID = g.id  " +
-					"ON WHERE d.MAC_ADDRESS=? AND s.DPID LIKE ?";
+					"WHERE d.MAC_ADDRESS=? AND s.DPID LIKE ?";
+			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, deviceMac);
 			stmt.setString(2, "%" + vlanId);
-			stmt = conn.prepareStatement(sql);
+
 			rs = stmt.executeQuery();
 			if (rs.next()) {
 				Device device = new Device();
@@ -292,7 +295,7 @@ public class DeviceDAOImpl implements DeviceDAO {
 				aSwitch.setDpId(rs.getString("DPID"));
 				aSwitch.setQuota(rs.getLong("QUOTA"));
 				aSwitch.setBillingDay(rs.getInt("BILLING_DAY"));
-				aSwitch.setStatus(Switch.Status.valueOf(rs.getString(rs.getString("SWITCH_STATUS"))));
+				aSwitch.setStatus(Switch.Status.valueOf(rs.getString("SWITCH_STATUS")));
 				deviceRecord.setaSwitch(aSwitch);
 
 				Group group = new Group();
@@ -328,8 +331,9 @@ public class DeviceDAOImpl implements DeviceDAO {
 					"g.PARENTAL_APP as PARENTAL_APP, g.IOT_SECURITY_APP as IOT_SECURITY_APP" +
 					" FROM (SM_DEVICE d LEFT JOIN SM_SWITCH s ON d.SWITCH_ID = s.ID) LEFT JOIN SM_GROUP g ON d.GROUP_ID = g.id  " +
 					"ON WHERE g.IOT_SECURITY_APP=?";
-			stmt.setBoolean(1, true);
 			stmt = conn.prepareStatement(sql);
+			stmt.setBoolean(1, true);
+
 			rs = stmt.executeQuery();
 			while (rs.next()) {
 				DeviceRecord deviceRecord = new DeviceRecord();
@@ -348,7 +352,7 @@ public class DeviceDAOImpl implements DeviceDAO {
 				aSwitch.setDpId(rs.getString("DPID"));
 				aSwitch.setQuota(rs.getLong("QUOTA"));
 				aSwitch.setBillingDay(rs.getInt("BILLING_DAY"));
-				aSwitch.setStatus(Switch.Status.valueOf(rs.getString(rs.getString("SWITCH_STATUS"))));
+				aSwitch.setStatus(Switch.Status.valueOf(rs.getString("SWITCH_STATUS")));
 				deviceRecord.setaSwitch(aSwitch);
 
 				Group group = new Group();

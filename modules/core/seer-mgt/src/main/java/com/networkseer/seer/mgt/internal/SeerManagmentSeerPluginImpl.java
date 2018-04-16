@@ -3,19 +3,22 @@ package com.networkseer.seer.mgt.internal;
 import com.networkseer.common.SeerPlugin;
 import com.networkseer.common.config.SeerConfiguration;
 import com.networkseer.seer.mgt.dao.SeerManagementDAOFactory;
+import com.networkseer.seer.mgt.dto.Group;
 import com.networkseer.seer.mgt.dto.Switch;
 import com.networkseer.seer.mgt.exception.SeerManagementException;
 import com.networkseer.seer.mgt.service.SeerMgtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.ServiceLoader;
 
 public class SeerManagmentSeerPluginImpl implements SeerPlugin {
 	private static final Logger log = LoggerFactory.getLogger(SeerManagmentSeerPluginImpl.class);
-
+	private static final String DEFAULT_OWNER = "admin";
 	@Override
 	public void activate(SeerConfiguration seerConfiguration) {
 		SeerManagementDAOFactory.init();
@@ -26,13 +29,20 @@ public class SeerManagmentSeerPluginImpl implements SeerPlugin {
 			seerMgtService = provider;
 		}
 		SeerManagementDataHolder.setSeerMgtService(seerMgtService);
+
 		if (seerConfiguration.getSwitches() != null) {
 			for (String dpId : seerConfiguration.getSwitches()) {
+				int switchId = -1;
 				try {
-					if (seerMgtService.getSwitch(dpId) == null) {
-						Switch aswitch = new Switch();
+					Switch aswitch = seerMgtService.getSwitch(dpId);
+					if ( aswitch == null) {
+						aswitch = new Switch();
 						aswitch.setStatus(Switch.Status.ACTIVE);
 						aswitch.setDpId(dpId);
+						aswitch.setBillingDay(0);
+						aswitch.setQuota(10);
+						aswitch.setOwner(DEFAULT_OWNER);
+						aswitch.setBillingDate(new Timestamp(new Date().getTime()));
 						seerMgtService.addSwitch(aswitch);
 					}
 				} catch (SeerManagementException e) {

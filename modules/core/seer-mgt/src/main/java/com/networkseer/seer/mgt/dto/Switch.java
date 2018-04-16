@@ -1,5 +1,8 @@
 package com.networkseer.seer.mgt.dto;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 public class Switch {
 
 	private int id;
@@ -10,6 +13,7 @@ public class Switch {
 	private long quota;
 	private int billingDay;
 	private Status status;
+	private Timestamp billingDate;
 
 	public enum Status {
 		ACTIVE,
@@ -78,5 +82,13 @@ public class Switch {
 
 	public void setStatus(Status status) {
 		this.status = status;
+	}
+
+	public Timestamp getBillingDate() {
+		return billingDate;
+	}
+
+	public void setBillingDate(Timestamp billingDate) {
+		this.billingDate = billingDate;
 	}
 }

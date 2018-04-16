@@ -1,5 +1,8 @@
 package com.networkseer.sdn.controller.mgt.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.networkseer.sdn.controller.mgt.impl.faucet.L2LearnWrapper;
 import com.networkseer.sdn.controller.mgt.internal.SdnControllerDataHolder;
 import io.nats.client.Connection;
 import io.nats.client.Nats;
@@ -15,6 +18,8 @@ public class NatsClient implements Runnable {
 	private static final Logger log = LoggerFactory.getLogger(NatsClient.class);
 	private static final int DEFAULT_RETRY_INTERVAL = 10000;
 	private Connection subscriber;
+	private static boolean disconnected = false;
+	private static String L2_LEARN_LABLE = "L2_LEARN";
 
 	public NatsClient() {
 		url = NATS_URL_PREFIX + SdnControllerDataHolder.getController().getHostname() + ":" +
@@ -25,7 +30,17 @@ public class NatsClient implements Runnable {
 	private void connectAndSubscribe() throws IOException {
 		subscriber = Nats.connect(url);
 		subscriber.subscribe(FAUCET_SOCKET_STREAM_SUBJECT, m -> {
-			log.info("Received a message: " + new String(m.getData()));
+			String data = new String(m.getData());
+			if (data.contains(L2_LEARN_LABLE)) {
+				ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+				L2LearnWrapper l2LearnWrapper = null;
+				try {
+					l2LearnWrapper = mapper.readValue(data, L2LearnWrapper.class);
+					SdnControllerDataHolder.getL2LearnWrapperMap().put(l2LearnWrapper.getL2Learn().getEthSrc(), l2LearnWrapper);
+				} catch (IOException e) {
+					log.error("invalid structure for l2 learn result" + data, e);
+				}
+			}
 		});
 	}
 
@@ -36,6 +51,7 @@ public class NatsClient implements Runnable {
 	}
 
 	public void disconnect() {
+		disconnected = true;
 		if (subscriber != null && !subscriber.isClosed()) {
 			subscriber.close();
 		}
@@ -43,17 +59,18 @@ public class NatsClient implements Runnable {
 
 	@Override
 	public void run() {
-		boolean isConnected = false;
-		while(!isConnected) {
-			try {
-				connectAndSubscribe();
-				isConnected = true;
-			} catch (IOException e) {
-				log.error("Failed to subscribe... retrying", e);
+		while(!disconnected) {
+			if (subscriber == null || !subscriber.isConnected()) {
 				try {
-					Thread.sleep(DEFAULT_RETRY_INTERVAL);
-				} catch (InterruptedException e1) {
-					Thread.interrupted();
+					connectAndSubscribe();
+					log.info("Nats Client connected");
+				} catch (IOException e) {
+					log.error("Failed to subscribe... retrying", e);
+					try {
+						Thread.sleep(DEFAULT_RETRY_INTERVAL);
+					} catch (InterruptedException e1) {
+						Thread.interrupted();
+					}
 				}
 			}
 		}

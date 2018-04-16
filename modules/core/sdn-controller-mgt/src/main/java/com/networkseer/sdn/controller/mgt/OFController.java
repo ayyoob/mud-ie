@@ -23,4 +23,6 @@ public interface OFController {
 
 	void addACLs(String dpId, String deviceMac, List<OFFlow> ofFlows, int vlan) throws OFControllerException;
 
+	HostInfo getHostInfo(String device);
+
 }

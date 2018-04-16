@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.networkseer.sdn.controller.mgt.HostInfo;
 import com.networkseer.sdn.controller.mgt.OFController;
 import com.networkseer.common.openflow.OFFlow;
 import com.networkseer.sdn.controller.mgt.exception.OFControllerException;
@@ -31,7 +32,7 @@ public class FaucetOFControllerImpl implements OFController {
 	private static final String FAUCET_CONFIG_DIR = "faucet.config.dir.path";
 	private static String faucetConfigPath;
 
-	public FaucetOFControllerImpl () {
+	public FaucetOFControllerImpl() {
 		faucetConfigPath = System.getProperty(FAUCET_CONFIG_DIR);
 	}
 
@@ -39,6 +40,9 @@ public class FaucetOFControllerImpl implements OFController {
 	public void addFlow(String dpId, OFFlow ofFlow) throws OFControllerException {
 		AddFlowMsg addFlowMsg = new AddFlowMsg();
 		addFlowMsg.setDpId(dpId);
+		Rule rule = new Rule();
+		rule.setOFFlow(ofFlow);
+		addFlowMsg.setRule(rule);
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String msg = mapper.writeValueAsString(addFlowMsg);
@@ -71,9 +75,9 @@ public class FaucetOFControllerImpl implements OFController {
 			return;
 		}
 		deviceMac = deviceMac.replace(":", "");
-		String deviceFile = deviceMac  + DEVICE_ACL_FILE_POSTFIX;
+		String deviceFile = deviceMac + DEVICE_ACL_FILE_POSTFIX;
 
-		String path = faucetConfigPath + File.separator +  dpId + SWITCH_ACL_FILE_POSTFIX;
+		String path = faucetConfigPath + File.separator + dpId + SWITCH_ACL_FILE_POSTFIX;
 		File switchMudConfig = new File(path);
 		if (!switchMudConfig.exists()) {
 			SwitchFaucetConfig switchFaucetConfig = new SwitchFaucetConfig();
@@ -110,16 +114,16 @@ public class FaucetOFControllerImpl implements OFController {
 				aclsIn.setAclsIn(acls);
 			} else {
 				if (!aclsIn.getAclsIn().contains(deviceMac + DEVICE_ACL_POSTFIX)) {
-					aclsIn.getAclsIn().add(0,deviceMac + DEVICE_ACL_POSTFIX);
+					aclsIn.getAclsIn().add(0, deviceMac + DEVICE_ACL_POSTFIX);
 				}
 			}
 			switchFaucetConfig.getVlans().put(vlan, aclsIn);
 			writeYamlToFile(switchMudConfig, switchFaucetConfig);
 		}
 
-		path = faucetConfigPath + File.separator +  deviceFile;
+		path = faucetConfigPath + File.separator + deviceFile;
 		Acls acls = new Acls();
-		List<RuleWrapper> ruleList= new ArrayList<RuleWrapper>();
+		List<RuleWrapper> ruleList = new ArrayList<RuleWrapper>();
 		for (OFFlow ofFlow : ofFlows) {
 			RuleWrapper ruleWrapper = new RuleWrapper();
 			Rule rule = new Rule();
@@ -135,6 +139,19 @@ public class FaucetOFControllerImpl implements OFController {
 		File deviceFaucetConfig = new File(path);
 		writeDeviceYamlToFile(deviceFaucetConfig, acls);
 
+	}
+
+	@Override
+	public HostInfo getHostInfo(String device) {
+		L2LearnWrapper l2LearnWrapper = SdnControllerDataHolder.getL2LearnWrapperMap().get(device);
+		if (l2LearnWrapper != null) {
+			HostInfo hostInfo = new HostInfo();
+			hostInfo.setDpId((Long.toHexString(l2LearnWrapper.getDpId())));
+			hostInfo.setPortNo(l2LearnWrapper.getL2Learn().getPortNumber());
+			hostInfo.setVlanId(l2LearnWrapper.getL2Learn().getVlanId());
+			return hostInfo;
+		}
+		return null;
 	}
 
 	@Override
@@ -178,8 +195,6 @@ public class FaucetOFControllerImpl implements OFController {
 			throw new OFControllerException(e);
 		}
 	}
-
-
 
 
 }

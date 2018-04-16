@@ -29,12 +29,12 @@ public class MUDProcesserDataHolder {
 		MUDProcesserDataHolder.ofController = ofController;
 	}
 
-	public List<MUDController> getControllers() {
+	public static List<MUDController> getControllers() {
 		return controllers;
 	}
 
-	public void setControllers(List<MUDController> controllers) {
-		this.controllers = controllers;
+	public static void setControllers(List<MUDController> controllers) {
+		MUDProcesserDataHolder.controllers = controllers;
 	}
 
 	public static String getMUDControllerValue(String urnId) {

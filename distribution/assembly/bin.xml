@@ -190,6 +190,16 @@
                 <exclude>jackson-databind-2.6.4.jar</exclude>
             </excludes>
         </fileSet>
+        <fileSet>
+            <directory>
+                ../modules/seer-apps/mud-processor/target/lib
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/lib/</outputDirectory>
+            <includes>
+                <include>httpclient-4.5.2.jar</include>
+                <include>httpcore-4.4.4.jar</include>
+            </includes>
+        </fileSet>
     </fileSets>
     <files>
         <file>

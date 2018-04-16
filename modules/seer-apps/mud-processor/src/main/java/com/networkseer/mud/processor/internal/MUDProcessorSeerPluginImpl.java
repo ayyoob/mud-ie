@@ -30,6 +30,7 @@ public class MUDProcessorSeerPluginImpl implements SeerPlugin {
 			ofControllerProvider = ofController;
 		}
 		MUDProcesserDataHolder.setOfController(ofControllerProvider);
+		MUDProcesserDataHolder.setControllers(seerConfiguration.getMudControllers());
 
 		String mudDevicePath = SeerDirectory.getConfigDirectory() + File.separator + "mud-device-list.csv";
 
@@ -70,7 +71,7 @@ public class MUDProcessorSeerPluginImpl implements SeerPlugin {
 	@Override
 	public List<String> getModuleDependencies() {
 		List<String> dependencies = new ArrayList<>();
-		dependencies.add("com.networkseer.seer.mgt.service.impl.SeerMgtServiceImpl");
+		dependencies.add("com.networkseer.seer.mgt.internal.SeerManagmentSeerPluginImpl");
 		dependencies.add("com.networkseer.sdn.controller.mgt.internal.SdnControllerSeerPluginImpl");
 		return dependencies;
 	}
