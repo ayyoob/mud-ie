@@ -11,6 +11,7 @@ public class SeerPacket {
     private String ipProto;
     private String srcPort;
     private String dstPort;
+    private int size;
     private byte[] payload;
 
     public void setTcpFlag(Flag tcpFlag) {
@@ -117,5 +118,18 @@ public class SeerPacket {
 
     public void setPayload(byte[] payload) {
         this.payload = payload;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public String getPacketInfo() {
+        return  System.currentTimeMillis() + ","+ srcMac + "," + dstMac + "," + ethType + "," + srcIp + "," + dstIp
+                + "," + ipProto + "," + srcPort + "," + dstPort + "," + size ;
     }
 }

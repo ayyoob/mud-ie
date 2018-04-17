@@ -29,13 +29,13 @@ def get_sys_prefix():
 class NatsAdapter(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(NatsAdapter, self).__init__(*args, **kwargs)
-        NatsAdapter.dpset = kwargs['dpset']
+        dpset = kwargs['dpset']
         self.event_sock = os.getenv('FAUCET_EVENT_SOCK', '0')
         # setup socket
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         thread = Thread(target=self.initialize_faucet_event_listener)
         thread.start()
-        subscriber = NatsClient();
+        subscriber = NatsClient(self.logger,dpset);
         subscriberThread = Thread(target=subscriber.subscribe)
         subscriberThread.start()
 
@@ -44,7 +44,7 @@ class NatsAdapter(app_manager.RyuApp):
         """Make connection to sock to receive events"""
         # check if socket events are enabled
         if self.event_sock == '0':
-            print('Not connecting to any socket, FA_EVENT_SOCK is none.')
+            self.logger.error('Not connecting to any socket, FA_EVENT_SOCK is none.')
             return False
         if self.event_sock == '1':
             self.event_sock = get_sys_prefix() + '/var/run/faucet/faucet.sock'
@@ -56,9 +56,9 @@ class NatsAdapter(app_manager.RyuApp):
         try:
             self.sock.connect(self.event_sock)
         except socket.error as err:
-            print("Failed to connect to the socket because: %s" % err)
+            self.logger.error("Failed to connect to the socket because: %s" % err)
             return False
-        print("Connected to the socket at %s" % self.event_sock)
+        self.logger.info("Connected to the socket at %s" % self.event_sock)
         return True
 
 
@@ -86,16 +86,12 @@ class NatsAdapter(app_manager.RyuApp):
                                 continue_recv = False
                 # send events to rabbit
                 try:
-                    nats_client = NatsClient();
+                    nats_client = NatsClient(self.logger);
                     buffers = buffer.strip().split(b'\n')
                     for buff in buffers:
                         nats_client.publish("faucet.sock.stream", buff)
                     buffer = b''
                 except Exception as err:
-                    print("Unable to send event to NATS because: %s" % err)
+                    self.logger.error("Unable to send event to NATS because: %s" % err)
                 sys.stdout.flush()
             self.sock.close()
-
-    def dpid_log(dpid):
-        """Log a DP ID as hex/decimal."""
-        return 'DPID %u (0x%x)' % (dpid, dpid)

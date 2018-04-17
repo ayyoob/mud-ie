@@ -1,7 +1,6 @@
 package com.networkseer.vxlan.listener;
 
 import com.networkseer.vxlan.listener.internal.VxLanListenerDataHolder;
-import com.networkseer.common.packet.PacketConstants;
 import com.networkseer.common.packet.PacketListener;
 import com.networkseer.common.packet.SeerPacket;
 import io.netty.buffer.ByteBuf;
@@ -17,8 +16,6 @@ import org.pcap4j.packet.namednumber.EtherType;
 import org.pcap4j.packet.namednumber.IpNumber;
 import org.pcap4j.util.ByteArrays;
 
-import java.nio.ByteBuffer;
-
 public class IncommingPacketHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 	@Override
 	protected void channelRead0(ChannelHandlerContext channelHandlerContext, DatagramPacket packet) throws Exception {
@@ -32,6 +29,7 @@ public class IncommingPacketHandler extends SimpleChannelInboundHandler<Datagram
 		seerPacket.setSrcMac(ethernetHeader.getSrcAddr().toString());
 		seerPacket.setDstMac(ethernetHeader.getDstAddr().toString());
 		seerPacket.setEthType(ethernetPacket.getHeader().getType().toString());
+		seerPacket.setSize(bytes.length-8);
 
 		if (EtherType.IPV4 == (ethernetHeader.getType())) {
 			IpV4Packet ipV4Packet = (IpV4Packet) ethernetPacket.getPayload();
@@ -55,20 +53,5 @@ public class IncommingPacketHandler extends SimpleChannelInboundHandler<Datagram
 		for (PacketListener packetListener : VxLanListenerDataHolder.getPacketListeners()) {
 			packetListener.processPacket(seerPacket);
 		}
-	}
-
-	private boolean isBroadcast(long rawValue) {
-		return rawValue == PacketConstants.BROADCAST_DECIMAL;
-	}
-
-	public boolean isMulticast(long rawValue) {
-		return (rawValue & PacketConstants.MULTICAST_MULTIPLIER) != 0L;
-	}
-
-	public long bytesToLong(byte[] bytes) {
-		ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-		buffer.put(bytes);
-		buffer.flip();//need flip
-		return buffer.getLong();
 	}
 }

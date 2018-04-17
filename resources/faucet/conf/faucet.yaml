@@ -31,13 +31,7 @@ acls:
             actions:
                 allow: 1
                 mirror: 5
-        - rule:
-            ipv4_dst: '8.8.8.8'
-            eth_type: 0x800
-            ip_proto: 1
-            actions:
-                allow: 1
-                mirror: 5
+
     default-allow-acl:
         - rule:
             actions:

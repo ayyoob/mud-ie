@@ -19,6 +19,7 @@ import java.util.ServiceLoader;
 public class SeerManagmentSeerPluginImpl implements SeerPlugin {
 	private static final Logger log = LoggerFactory.getLogger(SeerManagmentSeerPluginImpl.class);
 	private static final String DEFAULT_OWNER = "admin";
+
 	@Override
 	public void activate(SeerConfiguration seerConfiguration) {
 		SeerManagementDAOFactory.init();
@@ -32,17 +33,13 @@ public class SeerManagmentSeerPluginImpl implements SeerPlugin {
 
 		if (seerConfiguration.getSwitches() != null) {
 			for (String dpId : seerConfiguration.getSwitches()) {
-				int switchId = -1;
 				try {
 					Switch aswitch = seerMgtService.getSwitch(dpId);
-					if ( aswitch == null) {
+					if (aswitch == null) {
 						aswitch = new Switch();
 						aswitch.setStatus(Switch.Status.ACTIVE);
 						aswitch.setDpId(dpId);
-						aswitch.setBillingDay(0);
-						aswitch.setQuota(10);
 						aswitch.setOwner(DEFAULT_OWNER);
-						aswitch.setBillingDate(new Timestamp(new Date().getTime()));
 						seerMgtService.addSwitch(aswitch);
 					}
 				} catch (SeerManagementException e) {
@@ -52,6 +49,7 @@ public class SeerManagmentSeerPluginImpl implements SeerPlugin {
 		}
 
 	}
+
 	@Override
 	public void deactivate() {
 

@@ -12,6 +12,7 @@ public class MUDProcesserDataHolder {
 	private static OFController ofController;
 	private static List<MUDController> controllers;
 	private static Map<String, String> mudDevices;
+	private static boolean mudPacketLogging;
 
 	public static SeerMgtService getSeerMgtService() {
 		return seerMgtService;
@@ -52,5 +53,13 @@ public class MUDProcesserDataHolder {
 
 	public static void setMudDevices(Map<String, String> mudDevices) {
 		MUDProcesserDataHolder.mudDevices = mudDevices;
+	}
+
+	public static boolean isMudPacketLogging() {
+		return mudPacketLogging;
+	}
+
+	public static void setMudPacketLogging(boolean mudPacketLogging) {
+		MUDProcesserDataHolder.mudPacketLogging = mudPacketLogging;
 	}
 }

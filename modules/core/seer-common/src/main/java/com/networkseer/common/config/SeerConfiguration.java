@@ -10,6 +10,7 @@ public class SeerConfiguration extends Configuration {
 	private String swagger;
 	private List<String> switches;
 	private List<MUDController> mudControllers;
+	private boolean mudPacketLogging;
 
 	public Controller getController() {
 		return controller;
@@ -41,5 +42,13 @@ public class SeerConfiguration extends Configuration {
 
 	public void setMudControllers(List<MUDController> mudControllers) {
 		this.mudControllers = mudControllers;
+	}
+
+	public boolean isMudPacketLogging() {
+		return mudPacketLogging;
+	}
+
+	public void setMudPacketLogging(boolean mudPacketLogging) {
+		this.mudPacketLogging = mudPacketLogging;
 	}
 }

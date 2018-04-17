@@ -2,25 +2,40 @@ import os
 import asyncio
 import signal
 import time
+import sys
+import ast
 from nats.aio.client import Client as NATS
+from ryu.exception import RyuException
+from ryu.ofproto import ofproto_v1_0
+from ryu.ofproto import ofproto_v1_2
+from ryu.ofproto import ofproto_v1_3
+from ryu.ofproto import ofproto_v1_4
+from ryu.ofproto import ofproto_v1_5
+from ryu.lib import ofctl_v1_0
+from ryu.lib import ofctl_v1_2
+from ryu.lib import ofctl_v1_3
+from ryu.lib import ofctl_v1_4
+from ryu.lib import ofctl_v1_5
 
+supported_ofctl = {
+    ofproto_v1_0.OFP_VERSION: ofctl_v1_0,
+    ofproto_v1_2.OFP_VERSION: ofctl_v1_2,
+    ofproto_v1_3.OFP_VERSION: ofctl_v1_3,
+    ofproto_v1_4.OFP_VERSION: ofctl_v1_4,
+    ofproto_v1_5.OFP_VERSION: ofctl_v1_5,
+}
 
 class NatsClient:
-  def __init__(self):
+  def __init__(self, logger, dpid_set = None):
     self.url = os.getenv('NATS_URL')
+    if dpid_set is not None:
+      self.dpset = dpid_set;
+    self.logger = logger
 
   def connect_and_subscribe(self, loop):
     if not self.url:
-      print('Not connecting to any NATS server, host is None.')
+      self.logger.error('Not connecting to any NATS server, host is None.')
       return
-
-    @asyncio.coroutine
-    def subscribe_handler(msg):
-      subject = msg.subject
-      reply = msg.reply
-      data = msg.data.decode()
-      print("Received a message on '{subject} {reply}': {data}".format(
-        subject=subject, reply=reply, data=data))
 
     servers = [self.url]
     options = {
@@ -34,27 +49,61 @@ class NatsClient:
         yield from client.connect(**options)
         is_connected = True
       except Exception as e:
-        print("failed to connect..retrying", e)
+        self.logger.error("failed to connect..retrying", e)
         time.sleep(1)
         pass
-
 
     def signal_handler():
       if client.is_closed:
         return
-      print("Disconnecting...")
+      self.logger.error("Disconnecting...")
       loop.create_task(client.close())
 
     for sig in ('SIGINT', 'SIGTERM'):
       loop.add_signal_handler(getattr(signal, sig), signal_handler)
 
-    yield from client.subscribe("ryu.msg", cb=subscribe_handler)
+    @asyncio.coroutine
+    def subscribe_handler(msg):
+      subject = msg.subject
+      reply = msg.reply
+      data = msg.data.decode()
+      print("Received a message on '{subject} {reply}': {data}".format(
+        subject=subject, reply=reply, data=data))
+      if data == "restart":
+        yield from client.close()
+        loop.create_task(client.close())
+        print("closing faucet")
+        sys.exit(0)
+      else:
+        try:
+          body = ast.literal_eval(data)
+          print(body)
+          dpid = body.get('dpid', None)
+          if not dpid:
+            self.logger.error("dpid is not found in " + body)
+            return
+          dp = self.dpset.get(dpid)
+          if dp is None:
+            self.logger.error('No such Datapath: %s', dpid)
+            return
+           # Get lib/ofctl_* module
+          try:
+              ofctl = supported_ofctl.get(dp.ofproto.OFP_VERSION)
+              ofctl.mod_flow_entry(dp, body, dp.ofproto.OFPFC_ADD)
+          except KeyError:
+              self.logger.error('Unsupported OF version: version=%s', dp.ofproto.OFP_VERSION)
+        except Exception as e:
+          self.logger.error(e)
+
+    self.logger.info("subscribing to faucet.msg topic");
+    yield from client.subscribe("faucet.msg", cb=subscribe_handler)
 
   def subscribe(self):
     asyncio.set_event_loop(asyncio.new_event_loop())
     loop = asyncio.get_event_loop()
+    loop.run_until_complete(self.connect_and_subscribe(loop))
     try:
-      loop.run_until_complete(self.connect_and_subscribe(loop))
+      loop.run_forever()
     finally:
       loop.close()
 
@@ -81,20 +130,3 @@ class NatsClient:
       loop.run_until_complete(self.publish_msg(subject, msg, loop))
     finally:
       loop.close()
-
-  def _send_flow_msgs(self, dp_id, flow_msgs):
-    """Send OpenFlow messages to a connected datapath.
-
-    Args:
-        dp_id (int): datapath ID.
-        flow_msgs (list): OpenFlow messages to send.
-        ryu_dp: Override datapath from DPSet.
-    """
-    ryu_dp = NatsAdapter.dpset.get(dp_id)
-    if not ryu_dp:
-      self.logger.error('send_flow_msgs: %s not up', self.dpid_log(dp_id))
-      return
-
-    for flow_msg in flow_msgs:
-      flow_msg.datapath = ryu_dp
-      ryu_dp.send_msg(flow_msg)

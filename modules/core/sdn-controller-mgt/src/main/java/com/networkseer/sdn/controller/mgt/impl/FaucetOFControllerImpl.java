@@ -1,6 +1,5 @@
 package com.networkseer.sdn.controller.mgt.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -28,9 +27,12 @@ public class FaucetOFControllerImpl implements OFController {
 	private static final String SWITCH_ACL_FILE_POSTFIX = "-acl-mud.yaml";
 	private static final String DEVICE_ACL_FILE_POSTFIX = "-device-acl-mud.yaml";
 	private static final Logger log = LoggerFactory.getLogger(FaucetOFControllerImpl.class);
-	private static final String FAUCET_REACTIVE_FLOW_SUBJECT = "ryu.msg";
+	private static final String FAUCET_REACTIVE_FLOW_SUBJECT = "faucet.msg";
 	private static final String FAUCET_CONFIG_DIR = "faucet.config.dir.path";
 	private static String faucetConfigPath;
+	private static int cookie = 7730494;
+	private static long OFPP_NORMAL = 4294967290L;
+	private static String OUTPUT_ACTION = "OUTPUT";
 
 	public FaucetOFControllerImpl() {
 		faucetConfigPath = System.getProperty(FAUCET_CONFIG_DIR);
@@ -38,11 +40,27 @@ public class FaucetOFControllerImpl implements OFController {
 
 	@Override
 	public void addFlow(String dpId, OFFlow ofFlow) throws OFControllerException {
-		AddFlowMsg addFlowMsg = new AddFlowMsg();
-		addFlowMsg.setDpId(dpId);
+		ModFlowMsg addFlowMsg = new ModFlowMsg();
+		addFlowMsg.setDpid(Long.parseLong("0x"+dpId));
+		addFlowMsg.setCookie(cookie);
+		addFlowMsg.setPriority(ofFlow.getPriority());
 		Rule rule = new Rule();
 		rule.setOFFlow(ofFlow);
-		addFlowMsg.setRule(rule);
+
+		List<Action> actions = new ArrayList<>();
+		if (ofFlow.getOfAction() == OFFlow.OFAction.NORMAL) {
+			Action action = new Action();
+			action.setType(OUTPUT_ACTION);
+			action.setPort(OFPP_NORMAL);
+			actions.add(action);
+		} else {
+			throw new UnsupportedOperationException();
+		}
+
+		addFlowMsg.setActions(actions);
+		rule.setActions(null);
+		addFlowMsg.setMatch(rule);
+		addFlowMsg.setIdleTimeout(ofFlow.getIdleTimeOutInSeconds());
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String msg = mapper.writeValueAsString(addFlowMsg);
@@ -138,6 +156,12 @@ public class FaucetOFControllerImpl implements OFController {
 
 		File deviceFaucetConfig = new File(path);
 		writeDeviceYamlToFile(deviceFaucetConfig, acls);
+
+		try {
+			SdnControllerDataHolder.getNatsClient().publish(FAUCET_REACTIVE_FLOW_SUBJECT, "restart");
+		} catch (IOException e) {
+			log.error("failed to restart faucet", e);
+		}
 
 	}
 
