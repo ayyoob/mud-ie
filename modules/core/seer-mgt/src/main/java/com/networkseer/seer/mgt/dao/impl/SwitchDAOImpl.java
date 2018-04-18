@@ -162,6 +162,37 @@ public class SwitchDAOImpl implements SwitchDAO {
 	}
 
 	@Override
+	public List<Switch> getSwitches() throws SeerManagementException {
+		Connection conn;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		List<Switch> aSwitchs = new ArrayList<>();
+		try {
+			conn = this.getConnection();
+			String sql = "SELECT * FROM SM_SWITCH";
+			stmt = conn.prepareStatement(sql);
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+				Switch aSwitch = new Switch();
+				aSwitch.setId(rs.getInt("ID"));
+				aSwitch.setOwner(rs.getString("OWNER"));
+				aSwitch.setDpId(rs.getString("DPID"));
+				aSwitch.setDateOfCreation(rs.getTimestamp("CREATED_TIME").getTime());
+				aSwitch.setDateOfLastUpdate(rs.getTimestamp("LAST_UPDATED_TIME").getTime());
+				aSwitch.setQuota(rs.getLong("QUOTA"));
+				aSwitch.setBillingDay(rs.getInt("BILLING_DAY"));
+				aSwitch.setStatus(Switch.Status.valueOf(rs.getString("STATUS")));
+				aSwitchs.add(aSwitch);
+			}
+		} catch (SQLException e) {
+			throw new SeerManagementException("Error occurred while listing switch information for switch ", e);
+		} finally {
+			SeerManagementDAOUtil.cleanupResources(stmt, rs);
+		}
+		return aSwitchs;
+	}
+
+	@Override
 	public int addSwitch(Switch smSwitch) throws SeerManagementException {
 		Connection conn;
 		PreparedStatement stmt = null;

@@ -61,6 +61,8 @@ public class MUDProcessorSeerPluginImpl implements SeerPlugin {
 			}
 		}
 		MUDProcesserDataHolder.setMudDevices(mudDevices);
+		//seerConfiguration.isMudPacketLogging()
+		MUDProcesserDataHolder.setMudPacketLogging(true);
 	}
 
 	@Override

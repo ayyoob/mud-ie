@@ -1,5 +1,5 @@
 include-optional:
-    - f4f26d229e7c-mud-acl.yaml
+    - f4f26d229e7c-acl-mud.yaml
 
 dps:
     switch-1:
@@ -10,7 +10,7 @@ dps:
             1:
                 native_vlan: 100
                 acls_in: [mud-mirror-acl,default-allow-acl]
-            3:
+            4:
                 native_vlan: 100
                 acls_in: [mud-mirror-acl,default-allow-acl]
             5:

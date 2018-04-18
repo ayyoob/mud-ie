@@ -95,6 +95,18 @@ public class SeerMgtServiceImpl implements SeerMgtService {
 	}
 
 	@Override
+	public List<Switch> getSwitches() throws SeerManagementException {
+		try {
+			SeerManagementDAOFactory.openConnection();
+			return switchDAO.getSwitches();
+		} catch (Exception e) {
+			throw new SeerManagementException(e);
+		} finally {
+			SeerManagementDAOFactory.closeConnection();
+		}
+	}
+
+	@Override
 	public List<Device> getDevices(String dpId) throws SeerManagementException {
 		try {
 			SeerManagementDAOFactory.openConnection();

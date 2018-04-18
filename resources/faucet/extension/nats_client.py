@@ -49,14 +49,14 @@ class NatsClient:
         yield from client.connect(**options)
         is_connected = True
       except Exception as e:
-        self.logger.error("failed to connect..retrying", e)
+        self.logger.error("failed to connect..retrying " + self.url)
         time.sleep(1)
         pass
 
     def signal_handler():
       if client.is_closed:
         return
-      self.logger.error("Disconnecting...")
+      self.logger.info("Disconnecting...")
       loop.create_task(client.close())
 
     for sig in ('SIGINT', 'SIGTERM'):
@@ -67,17 +67,16 @@ class NatsClient:
       subject = msg.subject
       reply = msg.reply
       data = msg.data.decode()
-      print("Received a message on '{subject} {reply}': {data}".format(
+      self.logger.debug("Received a message on '{subject} {reply}': {data}".format(
         subject=subject, reply=reply, data=data))
-      if data == "restart":
+      if data == "reload":
         yield from client.close()
-        loop.create_task(client.close())
-        print("closing faucet")
-        sys.exit(0)
+        # loop.create_task(client.close())
+        self.logger.info("faucet reload configuration")
+        os.kill(os.getpid(), signal.SIGHUP)
       else:
         try:
           body = ast.literal_eval(data)
-          print(body)
           dpid = body.get('dpid', None)
           if not dpid:
             self.logger.error("dpid is not found in " + body)
@@ -120,7 +119,7 @@ class NatsClient:
       yield from client.flush()
       yield from client.close()
     except Exception as e:
-      print(e)
+      self.logger.error(e)
       pass
 
   def publish(self, subject, msg):

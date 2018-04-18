@@ -158,7 +158,7 @@ public class FaucetOFControllerImpl implements OFController {
 		writeDeviceYamlToFile(deviceFaucetConfig, acls);
 
 		try {
-			SdnControllerDataHolder.getNatsClient().publish(FAUCET_REACTIVE_FLOW_SUBJECT, "restart");
+			SdnControllerDataHolder.getNatsClient().publish(FAUCET_REACTIVE_FLOW_SUBJECT, "reload");
 		} catch (IOException e) {
 			log.error("failed to restart faucet", e);
 		}

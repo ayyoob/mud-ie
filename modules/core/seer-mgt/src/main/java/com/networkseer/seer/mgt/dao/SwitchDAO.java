@@ -17,6 +17,8 @@ public interface SwitchDAO {
 
 	List<Switch> getSwitches(String username) throws SeerManagementException;
 
+	List<Switch> getSwitches() throws SeerManagementException;
+
 	int addSwitch(Switch smSwitch) throws SeerManagementException;
 
 	boolean updateStatus(String dpId, Switch.Status status) throws SeerManagementException;

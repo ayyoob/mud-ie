@@ -9,7 +9,6 @@ import com.networkseer.mud.processor.dhcp.DHCPOption;
 import com.networkseer.mud.processor.mud.*;
 import com.networkseer.common.openflow.OFFlow;
 import com.networkseer.sdn.controller.mgt.exception.OFControllerException;
-import com.networkseer.sdn.controller.mgt.impl.FaucetOFControllerImpl;
 import com.networkseer.seer.mgt.dto.Device.Status;
 
 import com.networkseer.common.packet.PacketListener;
@@ -34,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -51,6 +49,7 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 	private static final int DYNAMIC_INTERNET_COMMUNICATION = 15000;
 	private static final long IDLE_TIMEOUT_IN_SECONDS = 7200;
 	private static final String MUD_URN = "urn:ietf:params:mud";
+	private static boolean isExistingDevicesloaded = false;
 
 	public MUDProcessorPacketListenerImpl() {
 		ScheduledExecutorService deviceExecutor = Executors.newScheduledThreadPool(1);
@@ -153,6 +152,30 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 					deviceIdentifier = deviceQueue.remove();
 				}
 			}
+
+			if (!isExistingDevicesloaded) {
+				try {
+					List<Switch> switches = MUDProcesserDataHolder.getSeerMgtService().getSwitches();
+					if (switches != null) {
+						for (Switch aswitch : switches) {
+							List<Device> devices = MUDProcesserDataHolder.getSeerMgtService().getDevices(aswitch.getDpId());
+							for (Device device : devices) {
+								DeviceMudWrapper deviceMudWrapper = new  DeviceMudWrapper(device.getProperty());
+								DeviceMUDFlowMap deviceMUDFlowMap = processMUD(device.getMac(),
+										SeerUtil.getSwitchMacFromDpID(aswitch.getDpId()),
+										deviceMudWrapper.getMudProfile());
+								deviceFlowMapHolder.put(device.getMac(), deviceMUDFlowMap);
+								log.info("mud config is loaded for device " + device.getMac());
+							}
+						}
+						isExistingDevicesloaded = true;
+					}
+				} catch (SeerManagementException e) {
+					log.error("Failed to load data from db", e);
+				} catch (IOException e) {
+					log.error("Failed to process mud", e);
+				}
+			}
 		};
 		deviceExecutor.scheduleWithFixedDelay(task, 10, 20, TimeUnit.SECONDS);
 	}
@@ -241,16 +264,26 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 						deviceIdentifier.setName("");
 					}
 					deviceQueue.add(deviceIdentifier);
+				} else if(MUDProcesserDataHolder.getMudDevices().containsKey(srcMac)) {
+					DeviceIdentifier deviceIdentifier = new DeviceIdentifier(seerPacket.getVxlanId(), srcMac);
+					deviceIdentifier.setMudUrl(MUDProcesserDataHolder.getMudDevices().get(srcMac));
+					dhcpOption = dhcp.getOption(
+							DHCP.DHCPOptionCode.OptionCode_Hostname);
+					if (dhcpOption != null) {
+						deviceIdentifier.setName(new String(dhcpOption.getData()));
+					} else {
+						deviceIdentifier.setName("");
+					}
+					deviceQueue.add(deviceIdentifier);
 				}
 			}
-		}
-		if (deviceFlowMapHolder.keySet().contains(srcMac) || deviceFlowMapHolder.keySet().contains(destMac)) {
+		} else if (deviceFlowMapHolder.keySet().contains(srcMac) || deviceFlowMapHolder.keySet().contains(destMac)) {
 			logPacket(seerPacket);
 			if (PacketConstants.UDP_PROTO.equals(seerPacket.getIpProto())
 					&& seerPacket.getSrcPort().equals(PacketConstants.DNS_PORT)) {
 				try {
 					DnsPacket dnsPacket = DnsPacket.newPacket(seerPacket.getPayload(), 0
-							, seerPacket.getPayload().length - 1);
+							, seerPacket.getPayload().length);
 					List<DnsResourceRecord> dnsResourceRecords = dnsPacket.getHeader().getAnswers();
 					List<String> answers = new ArrayList<String>();
 					for (DnsResourceRecord record : dnsResourceRecords) {
@@ -290,6 +323,8 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 						} catch (OFControllerException e) {
 							log.error("Failed to add a flow to device " + deviceMac + "flow " + ofFlow.getFlowString(), e);
 						}
+					} else {
+						logAnomalyPacket(seerPacket);
 					}
 				} else if (destMac.replace(":", "").contains(seerPacket.getVxlanId())) {
 					//D2G
@@ -314,7 +349,13 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 						} catch (OFControllerException e) {
 							log.error("Failed to add a flow to device " + deviceMac + "flow " + ofFlow.getFlowString(), e);
 						}
+					} else {
+						logAnomalyPacket(seerPacket);
 					}
+				} else {
+
+					logAnomalyPacket(seerPacket);
+
 				}
 			}
 		}
@@ -637,65 +678,6 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 
 	}
 
-	public class DeviceIdentifier {
-
-		private String vxlanId;
-		private String deviceMac;
-		private String mudUrl;
-		private String name;
-
-		public DeviceIdentifier(String vlanId, String deviceMac) {
-			this.vxlanId = vlanId;
-			this.deviceMac = deviceMac;
-		}
-
-		public String getMudUrl() {
-			return mudUrl;
-		}
-
-		public void setMudUrl(String mudUrl) {
-			this.mudUrl = mudUrl;
-		}
-
-		public String getVxlanId() {
-			return vxlanId;
-		}
-
-		public void setVxlanId(String vxlanId) {
-			this.vxlanId = vxlanId;
-		}
-
-		public String getDeviceMac() {
-			return deviceMac;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public void setDeviceMac(String deviceMac) {
-			this.deviceMac = deviceMac;
-		}
-
-		@Override
-		public int hashCode() {
-			int result = this.vxlanId.hashCode();
-			result = 31 * result + ("@" + this.deviceMac).hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return (obj instanceof DeviceIdentifier) && vxlanId.equals(
-					((DeviceIdentifier) obj).vxlanId) && deviceMac.equals(
-					((DeviceIdentifier) obj).deviceMac);
-		}
-	}
-
 	private void installLocalNetworkRules(String deviceMac, String switchMac, DeviceMUDFlowMap deviceMUDFlowMap) {
 		OFFlow ofFlow = new OFFlow();
 		ofFlow.setSrcMac(deviceMac);
@@ -869,34 +851,43 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 			return;
 		}
 		if (deviceFlowMapHolder.keySet().contains(packet.getSrcMac())) {
-			String path = SeerDirectory.getLogDirectory() + File.separator + packet.getSrcMac() + "-packet.log";
-			File file = new File(path);
-			// need to check how often does this method is called per device.
-			FileWriter writer = null;
-			try {
-				writer = new FileWriter(file, true);
-				writer.write(packet.getPacketInfo() + "\n");
-				writer.flush();
-				writer.close();
-			} catch (IOException e) {
-				log.error("Failed to log packet " + packet.getPacketInfo(), e);
-			}
+			String path = SeerDirectory.getLogDirectory() + File.separator + packet.getSrcMac().replace(":","")  + "-packet.log";
+			logPacket(path, packet);
 		}
 
 		if (deviceFlowMapHolder.keySet().contains(packet.getDstMac())) {
-			String path = SeerDirectory.getLogDirectory() + File.separator + packet.getDstMac() + "-packet.log";
-			File file = new File(path);
-			// need to check how often does this method is called per device.
-			FileWriter writer = null;
-			try {
-				writer = new FileWriter(file, true);
-				writer.write(packet.getPacketInfo() + "\n");
-				writer.flush();
-				writer.close();
-			} catch (IOException e) {
-				log.error("Failed to log packet " + packet.getPacketInfo(), e);
-			}
+			String path = SeerDirectory.getLogDirectory() + File.separator + packet.getDstMac().replace(":","")  + "-packet.log";
+			logPacket(path, packet);
+		}
+	}
+
+
+	private void logAnomalyPacket(SeerPacket packet) {
+		if (!MUDProcesserDataHolder.isMudPacketLogging()) {
+			return;
+		}
+		if (deviceFlowMapHolder.keySet().contains(packet.getSrcMac())) {
+			String path = SeerDirectory.getLogDirectory() + File.separator + packet.getSrcMac().replace(":","") + "-packet-anomaly.log";
+			logPacket(path, packet);
 		}
 
+		if (deviceFlowMapHolder.keySet().contains(packet.getDstMac())) {
+			String path = SeerDirectory.getLogDirectory() + File.separator + packet.getDstMac().replace(":","")  + "-packet-anomaly.log";
+			logPacket(path, packet);
+		}
+	}
+
+	private void logPacket(String path, SeerPacket packet) {
+		File file = new File(path);
+		// need to check how often does this method is called per device.
+		FileWriter writer = null;
+		try {
+			writer = new FileWriter(file, true);
+			writer.write(packet.getPacketInfo() + "\n");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			log.error("Failed to log packet " + packet.getPacketInfo(), e);
+		}
 	}
 }

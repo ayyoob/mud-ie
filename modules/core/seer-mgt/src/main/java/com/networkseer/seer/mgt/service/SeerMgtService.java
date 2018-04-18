@@ -20,6 +20,8 @@ public interface SeerMgtService {
 
 	List<Switch> getSwitches(String username) throws SeerManagementException;
 
+	List<Switch> getSwitches() throws SeerManagementException;
+
 	List<Device> getDevices(String dpId) throws SeerManagementException;
 
 	Group getGroup(String dpId, String deviceMac) throws SeerManagementException;
