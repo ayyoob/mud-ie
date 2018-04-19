@@ -34,7 +34,7 @@ public class IncommingPacketHandler extends SimpleChannelInboundHandler<Datagram
 		seerPacket.setVxlanId(ByteArrays.toHexString(vlanId, ""));
 		seerPacket.setSrcMac(ethernetHeader.getSrcAddr().toString());
 		seerPacket.setDstMac(ethernetHeader.getDstAddr().toString());
-		seerPacket.setEthType(packetEtherType.toString());
+		seerPacket.setEthType(packetEtherType.valueAsString());
 		seerPacket.setSize(size);
 
 		if (EtherType.IPV4 == packetEtherType) {

@@ -54,21 +54,14 @@ class NatsClient:
         time.sleep(1)
         pass
 
-    def signal_handler(sig, loop):
-      if sig == signal.SIGTERM || sig ==  signal.SIGINT:
-          if client.is_closed:
-            return
-          self.logger.info("Disconnecting...")
-          loop.create_task(client.close())
+    def signal_handler(signal):
+      if client.is_closed:
+        return
+      self.logger.info("Disconnecting...")
+      loop.create_task(client.close())
 
-
-    loop.add_signal_handler(signal.SIGTERM,
-                            functools.partial(asyncio.ensure_future,
-    signal_handler(signal.SIGTERM, loop)))
-
-    loop.add_signal_handler(signal.SIGINT,
-                            functools.partial(asyncio.ensure_future,
-    signal_handler(signal.SIGINT, loop)))
+    for sig in ('SIGINT', 'SIGTERM'):
+      loop.add_signal_handler(getattr(signal, sig), signal_handler)
 
     @asyncio.coroutine
     def subscribe_handler(msg):
@@ -78,8 +71,6 @@ class NatsClient:
       self.logger.debug("Received a message on '{subject} {reply}': {data}".format(
         subject=subject, reply=reply, data=data))
       if data == "reload":
-        yield from client.close()
-        # loop.create_task(client.close())
         self.logger.info("faucet reload configuration")
         os.kill(os.getpid(), signal.SIGHUP)
       else:

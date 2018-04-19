@@ -41,7 +41,7 @@ public class FaucetOFControllerImpl implements OFController {
 	@Override
 	public void addFlow(String dpId, OFFlow ofFlow) throws OFControllerException {
 		ModFlowMsg addFlowMsg = new ModFlowMsg();
-		addFlowMsg.setDpid(Long.parseLong("0x"+dpId));
+		addFlowMsg.setDpid(Long.decode("0x"+dpId));
 		addFlowMsg.setCookie(cookie);
 		addFlowMsg.setPriority(ofFlow.getPriority());
 		Rule rule = new Rule();

@@ -36,6 +36,7 @@ public class OFFlow implements Serializable{
         ofFlow.setPriority(this.priority);
         ofFlow.setIcmpType(this.icmpType);
         ofFlow.setIcmpCode(this.icmpCode);
+        ofFlow.setOfAction(this.ofAction);
         return ofFlow;
     }
 

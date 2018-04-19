@@ -45,9 +45,9 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 	private static final int FIXED_LOCAL_COMMUNICATION = 5;
 	private static final int DEFAULT_LOCAL_COMMUNICATION = 4;
 	private static final int FIXED_INTERNET_COMMUNICATION = 10;
+	private static final int FIXED_LOCAL_CONTROLLER_COMMUNICATION = 11;
 	private static final int DEFAULT_INTERNET_COMMUNICATION = 9;
 	private static final int DYNAMIC_INTERNET_COMMUNICATION = 15000;
-	private static final long IDLE_TIMEOUT_IN_SECONDS = 7200;
 	private static final String MUD_URN = "urn:ietf:params:mud";
 	private static boolean isExistingDevicesloaded = false;
 
@@ -244,7 +244,7 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 		String srcMac = seerPacket.getSrcMac();
 		String destMac = seerPacket.getDstMac();
 
-		if ((!deviceFlowMapHolder.keySet().contains(srcMac)) && PacketConstants.UDP_PROTO.equals(seerPacket.getIpProto())
+		if (PacketConstants.UDP_PROTO.equals(seerPacket.getIpProto())
 				&& destMac.equals(PacketConstants.BROADCAST_ADDR) && PacketConstants.DHCP_PORT.equals(seerPacket.getDstPort())) {
 			DHCP dhcp = new DHCP();
 			dhcp.deserialize(seerPacket.getPayload(), 0, seerPacket.getPayload().length);
@@ -299,8 +299,8 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 				} catch (NullPointerException | IllegalRawDataException e) {
 					//ignore packet that send to port 53
 				}
-			} else if (seerPacket.getEthType().equals(EtherType.IPV4.toString())
-					|| seerPacket.getEthType().equals(EtherType.IPV4.toString())) {
+			} else if (seerPacket.getEthType().equals(EtherType.IPV4.valueAsString())
+					|| seerPacket.getEthType().equals(EtherType.IPV6.valueAsString())) {
 				if (srcMac.replace(":", "").contains(seerPacket.getVxlanId())) {
 					//G2D
 					String deviceMac = seerPacket.getDstMac();
@@ -314,7 +314,7 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 					OFFlow ofFlow = getMatchingFlow(seerPacket, ofFlows);
 					if (ofFlow != null) {
 						ofFlow = ofFlow.copy();
-						ofFlow.setIdleTimeOutInSeconds(IDLE_TIMEOUT_IN_SECONDS);
+						ofFlow.setIdleTimeOutInSeconds(MUDProcesserDataHolder.getMudConfig().getMudReactiveIdleTimeout());
 						if (ofFlow.getSrcIp().equals(dns)) {
 							ofFlow.setSrcIp(srcIp);
 						}
@@ -328,7 +328,6 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 					}
 				} else if (destMac.replace(":", "").contains(seerPacket.getVxlanId())) {
 					//D2G
-
 					String deviceMac = seerPacket.getSrcMac();
 					DeviceMUDFlowMap deviceMUDFlowMap = deviceFlowMapHolder.get(deviceMac);
 					String dns = deviceMUDFlowMap.getDns(seerPacket.getDstIp());
@@ -340,12 +339,12 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 					OFFlow ofFlow = getMatchingFlow(seerPacket, ofFlows);
 					if (ofFlow != null) {
 						ofFlow = ofFlow.copy();
-						ofFlow.setIdleTimeOutInSeconds(IDLE_TIMEOUT_IN_SECONDS);
+						ofFlow.setIdleTimeOutInSeconds(MUDProcesserDataHolder.getMudConfig().getMudReactiveIdleTimeout());
 						if (ofFlow.getDstIp().equals(dns)) {
 							ofFlow.setDstIp(dstIp);
 						}
 						try {
-							MUDProcesserDataHolder.getOfController().addFlow(SeerUtil.getDpidFromMac(srcMac), ofFlow);
+							MUDProcesserDataHolder.getOfController().addFlow(SeerUtil.getDpidFromMac(destMac), ofFlow);
 						} catch (OFControllerException e) {
 							log.error("Failed to add a flow to device " + deviceMac + "flow " + ofFlow.getFlowString(), e);
 						}
@@ -353,9 +352,7 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 						logAnomalyPacket(seerPacket);
 					}
 				} else {
-
 					logAnomalyPacket(seerPacket);
-
 				}
 			}
 		}
@@ -408,6 +405,7 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 						String etherType = match.getEthMatch() == null ? PacketConstants.ETH_TYPE_IPV4 : match.getEthMatch()
 								.getEtherType();
 						ofFlow.setEthType(etherType);
+						ofFlow.setPriority(FIXED_LOCAL_COMMUNICATION);
 						if (match.getIpv4Match() != null &&
 								match.getIpv4Match().getProtocol() != 0) {
 
@@ -461,8 +459,9 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 						} else if (match.getIetfMudMatch().getController() != null &&
 								(match.getIetfMudMatch().getController().contains(MUD_URN))) {
 							ofFlow.setDstIp(MUDProcesserDataHolder.getMUDControllerValue(match.getIetfMudMatch().getController()));
+							ofFlow.setPriority(FIXED_LOCAL_CONTROLLER_COMMUNICATION);
 						}
-						ofFlow.setPriority(FIXED_LOCAL_COMMUNICATION);
+
 						ofFlow.setOfAction(OFFlow.OFAction.NORMAL);
 						toLocalStaticFlows.add(ofFlow);
 
@@ -544,6 +543,9 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 						//install local network related rules here
 						OFFlow ofFlow = new OFFlow();
 						ofFlow.setDstMac(deviceMac);
+						ofFlow.setPriority(FIXED_LOCAL_COMMUNICATION);
+						ofFlow.setOfAction(OFFlow.OFAction.NORMAL);
+
 						if (match.getIpv4Match() != null &&
 								match.getIpv4Match().getProtocol() != 0) {
 							ofFlow.setIpProto("" + match.getIpv4Match().getProtocol());
@@ -578,7 +580,11 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 								match.getUdpMatch().getSourcePortMatch() != null
 								&& match.getUdpMatch().getSourcePortMatch().getPort() != 0) {
 							ofFlow.setSrcPort("" + match.getUdpMatch().getSourcePortMatch().getPort());
+							if (ofFlow.getSrcPort().equals(PacketConstants.DNS_PORT)) {
+								ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
+							}
 						}
+
 
 						if ((match.getIpv4Match() != null && match.getIpv4Match().getDestinationIp() != null)) {
 							ofFlow.setSrcIp(match.getIpv4Match().getDestinationIp());
@@ -587,10 +593,8 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 						} else if (match.getIetfMudMatch().getController() != null &&
 								(match.getIetfMudMatch().getController().contains(MUD_URN))) {
 							ofFlow.setSrcIp(MUDProcesserDataHolder.getMUDControllerValue(match.getIetfMudMatch().getController()));
+							ofFlow.setPriority(FIXED_LOCAL_CONTROLLER_COMMUNICATION);
 						}
-
-						ofFlow.setPriority(FIXED_LOCAL_COMMUNICATION);
-						ofFlow.setOfAction(OFFlow.OFAction.NORMAL);
 						fromLocalStaticFlows.add(ofFlow);
 					} else {
 						OFFlow ofFlow = new OFFlow();
@@ -847,7 +851,7 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 	}
 
 	private void logPacket(SeerPacket packet) {
-		if (!MUDProcesserDataHolder.isMudPacketLogging()) {
+		if (!MUDProcesserDataHolder.getMudConfig().isMudPacketLogging()) {
 			return;
 		}
 		if (deviceFlowMapHolder.keySet().contains(packet.getSrcMac())) {
@@ -863,7 +867,7 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 
 
 	private void logAnomalyPacket(SeerPacket packet) {
-		if (!MUDProcesserDataHolder.isMudPacketLogging()) {
+		if (!MUDProcesserDataHolder.getMudConfig().isMudPacketLogging()) {
 			return;
 		}
 		if (deviceFlowMapHolder.keySet().contains(packet.getSrcMac())) {

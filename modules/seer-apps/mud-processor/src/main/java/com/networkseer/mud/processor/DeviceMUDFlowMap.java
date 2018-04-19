@@ -1,6 +1,8 @@
 package com.networkseer.mud.processor;
 
 import com.networkseer.common.openflow.OFFlow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 public class DeviceMUDFlowMap {
-
-	private static int MAXIP_PER_DNS = 15;
+	private static final Logger log = LoggerFactory.getLogger(DeviceMUDFlowMap.class);
+	private static int MAXIP_PER_DNS = 20;
 
 	private Map<String, List<String>> dnsIpMap = new HashMap<>();
 	private List<OFFlow> fromInternetDynamicFlows = new ArrayList<>();
@@ -82,6 +84,9 @@ public class DeviceMUDFlowMap {
 			dnsIpMap.put(dns, ips);
 		} else {
 			List<String> ipholder = dnsIpMap.get(dns);
+			if (ips.size() > MAXIP_PER_DNS) {
+				log.error("ips size is too long" + ips.size() + " for " + dns);
+			}
 			if (ipholder.size() + ips.size() > MAXIP_PER_DNS) {
 				int toRemove = MAXIP_PER_DNS - (ipholder.size() + ips.size());
 				if (toRemove > 0) {

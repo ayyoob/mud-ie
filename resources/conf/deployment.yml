@@ -38,14 +38,6 @@ controller:
   hostname: localhost
   port: 4222
 
-mudControllers:
-  - id: "urn:ietf:params:mud:dns"
-    value: "192.168.111.1"
-  - id: "urn:ietf:params:mud:ntp"
-    value: "192.168.111.1"
-  - id: "urn:ietf:params:mud:gateway"
-    value: "192.168.111.1"
-
 logging:
   level: ERROR
   loggers:
@@ -64,7 +56,17 @@ logging:
       timeZone: UTC
       maxFileSize: 10Mb
 
-mudPacketLogging: true
+
+mudConfig:
+  mudPacketLogging: true
+  mudReactiveIdleTimeout: 7200
+  mudControllers:
+    - id: "urn:ietf:params:mud:dns"
+      value: "192.168.111.1"
+    - id: "urn:ietf:params:mud:ntp"
+      value: "192.168.111.1"
+    - id: "urn:ietf:params:mud:gateway"
+      value: "192.168.111.1"
 
 switches:
   - "f4f26d229e7c"

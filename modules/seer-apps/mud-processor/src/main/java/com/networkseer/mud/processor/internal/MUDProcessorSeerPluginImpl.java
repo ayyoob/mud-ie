@@ -30,7 +30,7 @@ public class MUDProcessorSeerPluginImpl implements SeerPlugin {
 			ofControllerProvider = ofController;
 		}
 		MUDProcesserDataHolder.setOfController(ofControllerProvider);
-		MUDProcesserDataHolder.setControllers(seerConfiguration.getMudControllers());
+		MUDProcesserDataHolder.setMudConfig(seerConfiguration.getMudConfig());
 
 		String mudDevicePath = SeerDirectory.getConfigDirectory() + File.separator + "mud-device-list.csv";
 
@@ -61,8 +61,6 @@ public class MUDProcessorSeerPluginImpl implements SeerPlugin {
 			}
 		}
 		MUDProcesserDataHolder.setMudDevices(mudDevices);
-		//seerConfiguration.isMudPacketLogging()
-		MUDProcesserDataHolder.setMudPacketLogging(true);
 	}
 
 	@Override
