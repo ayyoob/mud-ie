@@ -5,7 +5,6 @@ import select
 import socket
 import sys
 from threading import Thread
-from ryu.base import app_manager
 from nats_client import NatsClient
 import time
 
@@ -26,25 +25,20 @@ def get_sys_prefix():
 
     return sysprefix
 
-class NatsAdapter(app_manager.RyuApp):
+class NatsAdapter():
     def __init__(self, *args, **kwargs):
-        super(NatsAdapter, self).__init__(*args, **kwargs)
-        dpset = kwargs['dpset']
+        super(NatsAdapter, self).__init__()
+
         self.event_sock = os.getenv('FAUCET_EVENT_SOCK', '0')
         # setup socket
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        thread = Thread(target=self.initialize_faucet_event_listener)
-        thread.start()
-        subscriber = NatsClient(self.logger,dpset);
-        subscriberThread = Thread(target=subscriber.subscribe)
-        subscriberThread.start()
 
 
     def socket_conn(self):
         """Make connection to sock to receive events"""
         # check if socket events are enabled
         if self.event_sock == '0':
-            self.logger.error('Not connecting to any socket, FA_EVENT_SOCK is none.')
+            print('Not connecting to any socket, FA_EVENT_SOCK is none.')
             return False
         if self.event_sock == '1':
             self.event_sock = get_sys_prefix() + '/var/run/faucet/faucet.sock'
@@ -56,17 +50,17 @@ class NatsAdapter(app_manager.RyuApp):
         try:
             self.sock.connect(self.event_sock)
         except socket.error as err:
-            self.logger.error("Failed to connect to the socket because: %s" % err)
+            print("Failed to connect to the socket because: %s" % err)
             return False
-        self.logger.info("Connected to the socket at %s" % self.event_sock)
+        print("Connected to the socket at %s" % self.event_sock)
         return True
 
 
     def initialize_faucet_event_listener(self):
-        """Make connections to sock and rabbit and receive messages from sock
-        to sent to rabbit
+        """Make connections to sock and nats and receive messages from sock
+        to sent to nats
         """
-        # ensure connections to the socket and rabbit before getting messages
+        # ensure connections to the socket and nats before getting messages
         if self.socket_conn():
             # get events from socket
             self.sock.setblocking(0)
@@ -86,12 +80,16 @@ class NatsAdapter(app_manager.RyuApp):
                                 continue_recv = False
                 # send events to rabbit
                 try:
-                    nats_client = NatsClient(self.logger);
+                    nats_client = NatsClient();
                     buffers = buffer.strip().split(b'\n')
                     for buff in buffers:
                         nats_client.publish("faucet.sock.stream", buff)
                     buffer = b''
                 except Exception as err:
-                    self.logger.error("Unable to send event to NATS because: %s" % err)
+                    print("Unable to send event to NATS because: %s" % err)
                 sys.stdout.flush()
             self.sock.close()
+
+if __name__ == "__main__":  # pragma: no cover
+    NATS_ADAPTER = NatsAdapter()
+    NATS_ADAPTER.initialize_faucet_event_listener()

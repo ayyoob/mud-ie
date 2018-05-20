@@ -28,6 +28,8 @@ public interface SeerMgtService {
 
 	DeviceRecord getDeviceRecord(String vlanId, String deviceMac) throws SeerManagementException;
 
+	List<DeviceRecord> getAllDevices(Device.Status status) throws SeerManagementException;
+
 	List<DeviceRecord> getIoTDeviceRecord() throws SeerManagementException;
 
 	void updateDeviceName(String deviceName, int deviceId) throws SeerManagementException;

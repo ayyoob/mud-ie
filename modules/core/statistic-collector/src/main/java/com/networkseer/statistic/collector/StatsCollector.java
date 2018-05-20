@@ -16,6 +16,7 @@ public class StatsCollector {
 
 	private static final Logger log = LoggerFactory.getLogger(StatsCollector.class);
 
+
 	public void collectStats() {
 		List<OFFlowStatsListener> ofFlowStatsListeners = StatsCollectorDataHolder.getOfFlowStatsListeners();
 		OFController ofController = StatsCollectorDataHolder.getOfController();

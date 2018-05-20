@@ -7,6 +7,7 @@ public class MudConfig {
 	private List<MUDController> mudControllers;
 	private boolean mudPacketLogging;
 	private int mudReactiveIdleTimeout;
+	private int summerizationTimeInSeconds;
 
 	public List<MUDController> getMudControllers() {
 		return mudControllers;
@@ -30,5 +31,13 @@ public class MudConfig {
 
 	public void setMudReactiveIdleTimeout(int mudReactiveIdleTimeout) {
 		this.mudReactiveIdleTimeout = mudReactiveIdleTimeout;
+	}
+
+	public int getSummerizationTimeInSeconds() {
+		return summerizationTimeInSeconds;
+	}
+
+	public void setSummerizationTimeInSeconds(int summerizationTimeInSeconds) {
+		this.summerizationTimeInSeconds = summerizationTimeInSeconds;
 	}
 }

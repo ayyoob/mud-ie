@@ -1,12 +1,13 @@
 package com.networkseer.mud.processor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networkseer.common.DeviceMudWrapper;
 import com.networkseer.common.SeerDirectory;
 import com.networkseer.common.SeerUtil;
 import com.networkseer.common.packet.PacketConstants;
 import com.networkseer.mud.processor.dhcp.DHCP;
 import com.networkseer.mud.processor.dhcp.DHCPOption;
-import com.networkseer.mud.processor.mud.*;
+import com.networkseer.common.mud.*;
 import com.networkseer.common.openflow.OFFlow;
 import com.networkseer.sdn.controller.mgt.exception.OFControllerException;
 import com.networkseer.seer.mgt.dto.Device.Status;
@@ -586,10 +587,10 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 						}
 
 
-						if ((match.getIpv4Match() != null && match.getIpv4Match().getDestinationIp() != null)) {
-							ofFlow.setSrcIp(match.getIpv4Match().getDestinationIp());
-						} else if (match.getIpv6Match() != null && match.getIpv6Match().getDestinationIp() != null) {
-							ofFlow.setSrcIp(match.getIpv6Match().getDestinationIp());
+						if ((match.getIpv4Match() != null && match.getIpv4Match().getSourceIp() != null)) {
+							ofFlow.setSrcIp(match.getIpv4Match().getSourceIp());
+						} else if (match.getIpv6Match() != null && match.getIpv6Match().getSourceIp() != null) {
+							ofFlow.setSrcIp(match.getIpv6Match().getSourceIp());
 						} else if (match.getIetfMudMatch().getController() != null &&
 								(match.getIetfMudMatch().getController().contains(MUD_URN))) {
 							ofFlow.setSrcIp(MUDProcesserDataHolder.getMUDControllerValue(match.getIetfMudMatch().getController()));

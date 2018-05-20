@@ -143,6 +143,18 @@ public class SeerMgtServiceImpl implements SeerMgtService {
 	}
 
 	@Override
+	public List<DeviceRecord> getAllDevices(Device.Status status) throws SeerManagementException {
+		try {
+			SeerManagementDAOFactory.openConnection();
+			return deviceDAO.getAllDevices(status);
+		} catch (Exception e) {
+			throw new SeerManagementException(e);
+		} finally {
+			SeerManagementDAOFactory.closeConnection();
+		}
+	}
+
+	@Override
 	public List<DeviceRecord> getIoTDeviceRecord() throws SeerManagementException {
 		try {
 			SeerManagementDAOFactory.openConnection();

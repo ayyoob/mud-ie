@@ -24,6 +24,8 @@ public interface DeviceDAO {
 
 	List<Device> getDevices(String dpId) throws SeerManagementException;
 
+	List<DeviceRecord> getAllDevices(Device.Status status) throws SeerManagementException;
+
 	DeviceRecord getDeviceRecord(String vlanId, String deviceMac) throws SeerManagementException;
 
 	List<DeviceRecord> getIoTDeviceRecord() throws SeerManagementException;

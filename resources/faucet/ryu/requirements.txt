@@ -1,0 +1,2 @@
+asyncio-nats-client
+ryu==4.23

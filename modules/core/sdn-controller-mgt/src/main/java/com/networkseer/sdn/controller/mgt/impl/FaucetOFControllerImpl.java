@@ -3,12 +3,18 @@ package com.networkseer.sdn.controller.mgt.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.networkseer.common.config.Controller;
 import com.networkseer.sdn.controller.mgt.HostInfo;
 import com.networkseer.sdn.controller.mgt.OFController;
 import com.networkseer.common.openflow.OFFlow;
 import com.networkseer.sdn.controller.mgt.exception.OFControllerException;
 import com.networkseer.sdn.controller.mgt.impl.faucet.*;
 import com.networkseer.sdn.controller.mgt.internal.SdnControllerDataHolder;
+import org.influxdb.InfluxDB;
+import org.influxdb.InfluxDBFactory;
+import org.influxdb.dto.Query;
+import org.influxdb.dto.QueryResult;
+import org.influxdb.impl.InfluxDBResultMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +39,12 @@ public class FaucetOFControllerImpl implements OFController {
 	private static int cookie = 7730494;
 	private static long OFPP_NORMAL = 4294967290L;
 	private static String OUTPUT_ACTION = "OUTPUT";
+	private static InfluxDB influxDB;
+	private static final String DB_NAME = "dbName";
+	private static final String DB_USERNAME = "username";
+	private static final String DB_PASSWORD = "password";
+	private static final String DB_URL = "dbUrl";
+	private static String dbname;
 
 	public FaucetOFControllerImpl() {
 		faucetConfigPath = System.getProperty(FAUCET_CONFIG_DIR);
@@ -187,6 +199,34 @@ public class FaucetOFControllerImpl implements OFController {
 	public List<OFFlow> getFlowStats(String dpId) throws OFControllerException {
 		return null;
 	}
+
+	@Override
+	public List<OFFlow> getFlowStats(Object filter) throws OFControllerException {
+		if (influxDB == null) {
+			Controller controller = SdnControllerDataHolder.getController();
+			influxDB = InfluxDBFactory.connect(controller.getProperties().get(DB_URL),
+					controller.getProperties().get(DB_USERNAME), controller.getProperties().get(DB_PASSWORD));
+			dbname = controller.getProperties().get(DB_NAME);
+		}
+
+		String deviceMac = (String) filter;
+		// Run the query
+		String query = "select * from flow_byte_count where (table_id = '0' or table_id = '2') " +
+				"and (eth_src = '"+ deviceMac +"' or eth_dst= '"+deviceMac+"') and time > now() - 1m";
+		Query queryObject = new Query(query, dbname);
+		QueryResult queryResult = influxDB.query(queryObject);
+
+		// Map it
+		InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
+		List<FaucetStatPoint> faucetStatPoints = resultMapper.toPOJO(queryResult, FaucetStatPoint.class);
+		return getOFFlows(faucetStatPoints);
+	}
+
+	private List<OFFlow> getOFFlows(List<FaucetStatPoint> faucetStatPoints) {
+		return null;
+	}
+
+
 
 	@Override
 	public Map<String, List<OFFlow>> getFlowStats() throws OFControllerException {

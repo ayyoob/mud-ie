@@ -1,4 +1,4 @@
-FROM faucet/faucet
+FROM faucet/faucet-base
 
 ENV PYTHONUNBUFFERED=0
 
@@ -10,7 +10,7 @@ RUN apk add --update \
     musl-dev \
     && rm -rf /var/cache/apk/*
 
-WORKDIR /home/faucet
+WORKDIR /src
 
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
@@ -18,4 +18,4 @@ RUN pip3 install -r requirements.txt
 COPY nats_adapter.py nats_adapter.py
 COPY nats_client.py nats_client.py
 
-CMD ["faucet", "--ryu-app", "/home/faucet/nats_adapter.py"]
+CMD ["python3", "nats_adapter.py"]

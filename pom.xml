@@ -19,6 +19,7 @@
     <module>modules/core/statistic-collector</module>
     <module>modules/packet-processor/vxlan-listener</module>
     <module>modules/seer-apps/mud-processor</module>
+    <module>modules/seer-apps/mud-collector</module>
     <module>distribution</module>
   </modules>
 
@@ -130,6 +131,11 @@
         <artifactId>jnats</artifactId>
         <version>${jnats.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.influxdb</groupId>
+        <artifactId>influxdb-java</artifactId>
+        <version>${influxdb.version}</version>
+      </dependency>
 
     </dependencies>
   </dependencyManagement>
@@ -150,6 +156,7 @@
     <guava.version>22.0</guava.version>
     <http.client.version>4.5.2</http.client.version>
     <jnats.version>1.0</jnats.version>
+    <influxdb.version>2.8</influxdb.version>
   </properties>
 
   <build>

@@ -61,12 +61,9 @@ services:
         links:
             - influxdb
 
-    faucet_extended:
+    faucet:
         restart: always
-        build:
-            context: ./extension/
-            dockerfile: Dockerfile
-        image: 'nats-adapter:faucet'
+        image: 'faucet/faucet:latest'
         volumes:
             - './conf/:/var/log/faucet'
             - './conf/:/etc/faucet'
@@ -74,8 +71,34 @@ services:
             - '6653:6653'
             - '9302'
         environment:
-            FAUCET_CONFIG_STAT_RELOAD: '${FAUCET_CONFIG_STAT_RELOAD}'
+            FAUCET_CONFIG_STAT_RELOAD: '1'
             FAUCET_EVENT_SOCK: '1'
+
+    faucet_adapter:
+        restart: always
+        build:
+            context: ./extension/
+            dockerfile: Dockerfile
+        depends_on:
+            - faucet
+        volumes_from:
+            - faucet
+        image: 'nats-adapter:faucet'
+        environment:
+            FAUCET_EVENT_SOCK: '1'
+            NATS_URL: 'nats://gnatsd:4222'
+        links:
+            - gnatsd
+
+    ryu:
+        restart: always
+        build:
+            context: ./ryu/
+            dockerfile: Dockerfile
+        image: 'ryu:faucet'
+        ports:
+            - '6655:6653'
+        environment:
             NATS_URL: 'nats://gnatsd:4222'
         links:
             - gnatsd

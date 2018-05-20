@@ -166,14 +166,23 @@ public class OFFlow implements Serializable{
         this.dstPort = dstPort;
     }
 
+
     @Override
     public int hashCode() {
-        int result = this.srcMac.hashCode();
-        result = 31 * result + ("@" + this.dstMac + "@" + this.ethType + "@" + this.vlanId
-                + "@" + this.srcIp + "@" + this.dstIp + "@" + this.ipProto + "@" + this.srcPort + "@" + this.dstPort
-                + "@" + this.icmpType+ "@" + this.icmpCode).hashCode();
+        int result = srcMac.hashCode();
+        result = 31 * result + dstMac.hashCode();
+        result = 31 * result + ethType.hashCode();
+        result = 31 * result + vlanId.hashCode();
+        result = 31 * result + srcIp.hashCode();
+        result = 31 * result + dstIp.hashCode();
+        result = 31 * result + ipProto.hashCode();
+        result = 31 * result + srcPort.hashCode();
+        result = 31 * result + dstPort.hashCode();
+        result = 31 * result + icmpType.hashCode();
+        result = 31 * result + icmpCode.hashCode();
         return result;
     }
+
 
     @Override
     public boolean equals(Object obj) {

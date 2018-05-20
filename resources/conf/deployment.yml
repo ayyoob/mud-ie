@@ -37,6 +37,11 @@ controller:
 #  port: ${CTR_PORT:-8080}
   hostname: localhost
   port: 4222
+  properties:
+    username: "faucet"
+    password: "faucet"
+    dbName: "faucet"
+    dbUrl: "http://localhost:8086"
 
 logging:
   level: ERROR
@@ -60,6 +65,7 @@ logging:
 mudConfig:
   mudPacketLogging: true
   mudReactiveIdleTimeout: 7200
+  summerizationTimeInSeconds: 60
   mudControllers:
     - id: "urn:ietf:params:mud:dns"
       value: "192.168.111.1"
