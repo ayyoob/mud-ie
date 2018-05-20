@@ -55,13 +55,13 @@
             </excludes>
         </fileSet>
 
-        <!--<fileSet>-->
-            <!--<directory>.</directory>-->
-            <!--<outputDirectory>${pom.artifactId}-${pom.version}/controller</outputDirectory>-->
-            <!--<excludes>-->
-                <!--<exclude>*/**</exclude>-->
-            <!--</excludes>-->
-        <!--</fileSet>-->
+        <fileSet>
+            <directory>.</directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector</outputDirectory>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
+        </fileSet>
         <fileSet>
             <directory>.</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine</outputDirectory>
@@ -69,14 +69,17 @@
                 <exclude>*/**</exclude>
             </excludes>
         </fileSet>
-        <!--<fileSet>-->
-            <!--<directory>.</directory>-->
-            <!--<outputDirectory>${pom.artifactId}-${pom.version}/orchestrator</outputDirectory>-->
-            <!--<excludes>-->
-                <!--<exclude>*/**</exclude>-->
-            <!--</excludes>-->
-        <!--</fileSet>-->
 
+        <!--Setting up faucet profile-->
+        <fileSet>
+            <directory>
+                ../resources/faucet
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/faucet/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+        </fileSet>
 
         <!-- Setting up inspector-engine profile files -->
         <fileSet>
@@ -107,15 +110,6 @@
                 ../resources/dbscripts
             </directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/dbscripts/</outputDirectory>
-            <includes>
-                <include>*/**</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ../resources/faucet
-            </directory>
-            <outputDirectory>${pom.artifactId}-${pom.version}/faucet/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
@@ -200,37 +194,178 @@
                 <include>httpcore-4.4.4.jar</include>
             </includes>
         </fileSet>
+
+        <!--END OF inspector engine profile-->
+
+        <!-- Setting up mud-collector profile files -->
+        <fileSet>
+            <directory>.</directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/tmp</outputDirectory>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>.</directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/bin/</outputDirectory>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../resources/mud-collector/datasources
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/datasources/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../resources/dbscripts
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/dbscripts/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../resources/mud-collector/conf
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/conf/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../resources/bin
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/bin/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+            <fileMode>777</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../modules/core/seer-framework/target/lib
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/lib/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ./target/database
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/database/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../modules/core/datasource-mgt/target/lib
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/lib/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../modules/core/sdn-controller-mgt/target/lib
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/lib/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+            <excludes>
+                <exclude>jackson-annotations-2.6.0.jar</exclude>
+                <exclude>javassist-3.20.0-GA.jar</exclude>
+                <exclude>jackson-core-2.6.4.jar	</exclude>
+                <exclude>jackson-databind-2.6.4.jar</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../modules/seer-apps/mud-collector/target/lib
+            </directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/lib/</outputDirectory>
+            <includes>
+                <include>httpclient-4.5.2.jar</include>
+                <include>httpcore-4.4.4.jar</include>
+            </includes>
+        </fileSet>
+        <!--END OF mud collector profile-->
+
     </fileSets>
     <files>
+
+        <!-- Setting up inspector-engine profile files -->
         <file>
             <source>../modules/core/seer-framework/target/seer-core-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/plugins</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/lib</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
             <source>../modules/core/datasource-mgt/target/datasource-mgt-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/plugins</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/lib</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
             <source>../modules/core/seer-mgt/target/seer-mgt-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/plugins</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/lib</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
             <source>../modules/core/sdn-controller-mgt/target/sdn-controller-mgt-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/plugins</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/lib</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
             <source>../modules/packet-processor/vxlan-listener/target/vxlan-listener-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/plugins</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/lib</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
             <source>../modules/seer-apps/mud-processor/target/mud-processor-${pom.version}.jar</source>
-            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/plugins</outputDirectory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/inspector-engine/lib</outputDirectory>
             <fileMode>644</fileMode>
         </file>
+        <!--END OF inspector engine profile-->
+
+        <!-- Setting up mud-collector profile files -->
+        <file>
+            <source>../modules/core/seer-framework/target/seer-core-${pom.version}.jar</source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/lib</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../modules/core/datasource-mgt/target/datasource-mgt-${pom.version}.jar</source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/lib</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../modules/core/seer-mgt/target/seer-mgt-${pom.version}.jar</source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/lib</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../modules/core/sdn-controller-mgt/target/sdn-controller-mgt-${pom.version}.jar</source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/lib</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../modules/seer-apps/mud-collector/target/mud-collector-${pom.version}.jar</source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/mud-collector/lib</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <!--END OF inspector engine profile-->
+
     </files>
 </assembly>

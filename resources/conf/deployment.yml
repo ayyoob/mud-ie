@@ -46,17 +46,17 @@ controller:
 logging:
   level: ERROR
   loggers:
-    com.networkseer: INFO
+    com.mudie: INFO
 #    feign: DEBUG
   appenders:
     - type: console
       threshold: INFO
     - type: file
-      currentLogFilename: logs/network-seer.log
+      currentLogFilename: logs/mud-ie.log
       logFormat: "%-6level [%d{HH:mm:ss.SSS}] [%t] %logger{5} - %X{code} %msg %n"
       threshold: INFO
       archive: true
-      archivedLogFilenamePattern: logs/network-seer-%d{yyyy-MM-dd}-%i.log
+      archivedLogFilenamePattern: logs/mud-ie-%d{yyyy-MM-dd}-%i.log
       archivedFileCount: 10
       timeZone: UTC
       maxFileSize: 10Mb

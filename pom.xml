@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.networkseer</groupId>
+  <groupId>com.mudie</groupId>
   <artifactId>product-seer</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -16,7 +16,6 @@
     <module>modules/core/datasource-mgt</module>
     <module>modules/core/seer-mgt</module>
     <module>modules/core/sdn-controller-mgt</module>
-    <module>modules/core/statistic-collector</module>
     <module>modules/packet-processor/vxlan-listener</module>
     <module>modules/seer-apps/mud-processor</module>
     <module>modules/seer-apps/mud-collector</module>
@@ -26,22 +25,22 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>com.networkseer</groupId>
+        <groupId>com.mudie</groupId>
         <artifactId>seer-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.networkseer</groupId>
+        <groupId>com.mudie</groupId>
         <artifactId>seer-common</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.networkseer</groupId>
+        <groupId>com.mudie</groupId>
         <artifactId>seer-mgt</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.networkseer</groupId>
+        <groupId>com.mudie</groupId>
         <artifactId>sdn-controller-mgt</artifactId>
         <version>${project.version}</version>
       </dependency>

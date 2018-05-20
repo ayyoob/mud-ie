@@ -208,12 +208,12 @@ do
     fi
 done
 
-for f in "$SEER_HOME"/plugins/*.jar
-do
-    if [ "$f" != "$SEER_HOME/plugins/*.jar" ];then
-        SEER_CLASSPATH="$SEER_CLASSPATH":$f
-    fi
-done
+#for f in "$SEER_HOME"/plugins/*.jar
+#do
+#    if [ "$f" != "$SEER_HOME/plugins/*.jar" ];then
+#        SEER_CLASSPATH="$SEER_CLASSPATH":$f
+#    fi
+#done
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
@@ -269,6 +269,6 @@ do
     -Djava.net.preferIPv4Stack=true \
     -Djava.util.logging.config.file="$SEER_HOME/logs.log4j.properties" \
     -Djava.net.preferIPv4Stack=true \
-    com.networkseer.framework.SeerCore
+    com.mudie.framework.SeerCore
     status=$?
 done

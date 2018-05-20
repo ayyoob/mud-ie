@@ -1,0 +1,81 @@
+server:
+
+  requestLog:
+      appenders: []
+#      - type: console
+#        layout:
+#          type: access-json
+#          timestampFormat: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+#          requestHeaders:
+#              - User-Agent
+#              - X-Request-Id
+
+  applicationConnectors:
+    - type: http
+      port: 9005
+#    - type: https
+#      port: 8443
+#      keyStorePath: keystores/seer.jks
+#      keyStorePassword: seer
+#      keyStoreType: JKS
+
+  adminConnectors:
+    - type: http
+      port: 9006
+#    - type: https
+#      port: 8444
+#      keyStorePath: keystores/seer.jks
+#      keyStorePassword: seer
+#      keyStoreType: JKS
+#      trustStorePath: /path/to/file
+#      trustStorePassword: changeit
+#      trustStoreType: JKS
+
+controller:
+  type: faucet
+#  hostname: ${CTR_HOSTNAME:-localhost}
+#  port: ${CTR_PORT:-8080}
+  hostname: localhost
+  port: 4222
+  properties:
+    username: "faucet"
+    password: "faucet"
+    dbName: "faucet"
+    dbUrl: "http://localhost:8086"
+    mode: "collector"
+
+logging:
+  level: ERROR
+  loggers:
+    com.mudie: INFO
+#    feign: DEBUG
+  appenders:
+    - type: console
+      threshold: INFO
+    - type: file
+      currentLogFilename: logs/mud-ie.log
+      logFormat: "%-6level [%d{HH:mm:ss.SSS}] [%t] %logger{5} - %X{code} %msg %n"
+      threshold: INFO
+      archive: true
+      archivedLogFilenamePattern: logs/mud-ie-%d{yyyy-MM-dd}-%i.log
+      archivedFileCount: 10
+      timeZone: UTC
+      maxFileSize: 10Mb
+
+
+mudConfig:
+  mudPacketLogging: true
+  mudReactiveIdleTimeout: 7200
+  summerizationTimeInSeconds: 60
+  mudControllers:
+    - id: "urn:ietf:params:mud:dns"
+      value: "192.168.111.1"
+    - id: "urn:ietf:params:mud:ntp"
+      value: "192.168.111.1"
+    - id: "urn:ietf:params:mud:gateway"
+      value: "192.168.111.1"
+
+switches:
+  - "f4f26d229e7c"
+
+swagger: True

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.networkseer</groupId>
+    <groupId>com.mudie</groupId>
     <artifactId>product-seer</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../../../pom.xml</relativePath>
@@ -25,7 +25,7 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.networkseer</groupId>
+      <groupId>com.mudie</groupId>
       <artifactId>seer-common</artifactId>
     </dependency>
     <dependency>
@@ -51,7 +51,7 @@
           <archive>
             <manifest>
                 <!--<addClasspath>true</addClasspath>-->
-                <mainClass>com.networkseer.framework.SeerCore</mainClass>
+                <mainClass>com.mudie.framework.SeerCore</mainClass>
             <!-- <mainClass>test.org.Cliente</mainClass> -->
              </manifest>
           </archive>
