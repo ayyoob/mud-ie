@@ -10,8 +10,6 @@ from nats.aio.client import Client as NATS
 class NatsClient:
   def __init__(self):
     self.url = os.getenv('NATS_URL')
-    if dpid_set is not None:
-      self.dpset = dpid_set;
 
   def connect_and_subscribe(self, loop):
     if not self.url:

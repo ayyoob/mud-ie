@@ -17,7 +17,7 @@ public interface OFController {
 
 	List<OFFlow> getFlowStats(String dpId) throws OFControllerException;
 
-	List<OFFlow> getFlowStats(Object filter) throws OFControllerException;
+	List<OFFlow> getFilteredFlowStats(Object filter) throws OFControllerException;
 
 	Map<String, List<OFFlow>> getFlowStats() throws OFControllerException;
 

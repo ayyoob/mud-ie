@@ -11,7 +11,7 @@ watchers:
         type: 'port_stats'
         all_dps: True
         #dps: ['sw1', 'sw2']
-        interval: 10
+        interval: 60
         db: 'influx'
         #db: 'influx'
     flow_table_poller:

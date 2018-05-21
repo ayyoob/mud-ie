@@ -12,7 +12,6 @@ import java.util.List;
 public class SdnControllerSeerPluginImpl implements SeerPlugin {
 
 	private static final Logger log = LoggerFactory.getLogger(SdnControllerSeerPluginImpl.class);
-	private static final String FLOODLIGHT = "floodlight";
 
 	public SdnControllerSeerPluginImpl() { };
 
@@ -41,7 +40,15 @@ public class SdnControllerSeerPluginImpl implements SeerPlugin {
 
 	@Override
 	public void deactivate() {
-		SdnControllerDataHolder.getNatsClient().disconnect();
+		if (SdnControllerDataHolder.getController().getProperties() == null) {
+			SdnControllerDataHolder.getNatsClient().disconnect();
+		} else {
+			String value = SdnControllerDataHolder.getController().getProperties().get("mode");
+			if (value == null || value.length() == 0) {
+				SdnControllerDataHolder.getNatsClient().disconnect();
+			}
+		}
+
 	}
 
 	@Override

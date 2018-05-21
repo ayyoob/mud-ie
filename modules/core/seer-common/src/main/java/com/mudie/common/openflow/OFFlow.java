@@ -173,8 +173,10 @@ public class OFFlow implements Serializable{
         result = 31 * result + dstMac.hashCode();
         result = 31 * result + ethType.hashCode();
         result = 31 * result + vlanId.hashCode();
-        result = 31 * result + srcIp.hashCode();
-        result = 31 * result + dstIp.hashCode();
+
+        //TODO tmp fix for ipchk
+        result = 31 * result + srcIp.replace("/32","").hashCode();
+        result = 31 * result + dstIp.replace("/32","").hashCode();
         result = 31 * result + ipProto.hashCode();
         result = 31 * result + srcPort.hashCode();
         result = 31 * result + dstPort.hashCode();

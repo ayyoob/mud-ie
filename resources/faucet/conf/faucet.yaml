@@ -10,7 +10,7 @@ dps:
             1:
                 native_vlan: 100
                 acls_in: [mud-mirror-acl,default-allow-acl]
-            4:
+            3:
                 native_vlan: 100
                 acls_in: [mud-mirror-acl,default-allow-acl]
             5:

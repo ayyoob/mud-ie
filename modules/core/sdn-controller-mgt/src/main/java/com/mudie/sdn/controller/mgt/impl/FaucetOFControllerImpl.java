@@ -169,11 +169,11 @@ public class FaucetOFControllerImpl implements OFController {
 		File deviceFaucetConfig = new File(path);
 		writeDeviceYamlToFile(deviceFaucetConfig, acls);
 
-		try {
-			SdnControllerDataHolder.getNatsClient().publish(FAUCET_REACTIVE_FLOW_SUBJECT, "reload");
-		} catch (IOException e) {
-			log.error("failed to restart faucet", e);
-		}
+//		try {
+//			SdnControllerDataHolder.getNatsClient().publish(FAUCET_REACTIVE_FLOW_SUBJECT, "reload");
+//		} catch (IOException e) {
+//			log.error("failed to restart faucet", e);
+//		}
 
 	}
 
@@ -201,7 +201,7 @@ public class FaucetOFControllerImpl implements OFController {
 	}
 
 	@Override
-	public List<OFFlow> getFlowStats(Object filter) throws OFControllerException {
+	public List<OFFlow> getFilteredFlowStats(Object filter) throws OFControllerException {
 		if (influxDB == null) {
 			Controller controller = SdnControllerDataHolder.getController();
 			influxDB = InfluxDBFactory.connect(controller.getProperties().get(DB_URL),
@@ -211,22 +211,30 @@ public class FaucetOFControllerImpl implements OFController {
 
 		String deviceMac = (String) filter;
 		// Run the query
-		String query = "select * from flow_byte_count where (table_id = '0' or table_id = '2') " +
-				"and (eth_src = '"+ deviceMac +"' or eth_dst= '"+deviceMac+"') and time > now() - 1m";
+		String query = "select * from flow_byte_count, flow_packet_count where (table_id = '0' or table_id = '2') and" +
+				" (eth_src = '"+deviceMac+"' or eth_dst= '"+deviceMac+"') and time > now() - 1m ";
 		Query queryObject = new Query(query, dbname);
 		QueryResult queryResult = influxDB.query(queryObject);
 
 		// Map it
 		InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
-		List<FaucetStatPoint> faucetStatPoints = resultMapper.toPOJO(queryResult, FaucetStatPoint.class);
-		return getOFFlows(faucetStatPoints);
+		List<FaucetByteStatPoint> faucetByteStatPoints = resultMapper.toPOJO(queryResult, FaucetByteStatPoint.class);
+		List<OFFlow> ofFlows = new ArrayList<>();
+		Map<Integer, OFFlow> ofFlowMap = new HashMap<>();
+		for (FaucetByteStatPoint faucetByteStatPoint: faucetByteStatPoints) {
+			OFFlow ofFlow = faucetByteStatPoint.getOFFlow();
+			ofFlows.add(ofFlow);
+			ofFlowMap.put(ofFlow.hashCode(), ofFlow);
+		}
+
+		List<FaucetPacketStatPoint> faucePackettStatPoints = resultMapper.toPOJO(queryResult, FaucetPacketStatPoint.class);
+		for (FaucetPacketStatPoint faucetPacketStatPoint: faucePackettStatPoints) {
+			OFFlow ofFlow = faucetPacketStatPoint.getOFFlow();
+			OFFlow existingFlow = ofFlowMap.get(ofFlow.hashCode());
+			existingFlow.setPacketCount(ofFlow.getPacketCount());
+		}
+		return ofFlows;
 	}
-
-	private List<OFFlow> getOFFlows(List<FaucetStatPoint> faucetStatPoints) {
-		return null;
-	}
-
-
 
 	@Override
 	public Map<String, List<OFFlow>> getFlowStats() throws OFControllerException {
@@ -259,6 +267,4 @@ public class FaucetOFControllerImpl implements OFController {
 			throw new OFControllerException(e);
 		}
 	}
-
-
 }

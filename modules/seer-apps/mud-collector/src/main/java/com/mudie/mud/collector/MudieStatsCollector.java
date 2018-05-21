@@ -53,7 +53,7 @@ public class MudieStatsCollector {
                 if (records != null && records.size() > 0) {
                     records.stream().forEach(deviceRecord -> {
                         try {
-                            if (featureSet.get(deviceRecord.getDevice().getMac()) != null) {
+                            if (featureSet.get(deviceRecord.getDevice().getMac()) == null) {
                                 DeviceMudWrapper deviceMudWrapper = new DeviceMudWrapper(deviceRecord.getDevice().getProperty());
                                 DeviceMUDFlowMap deviceMUDFlowMap = addMudConfigs(deviceMudWrapper.getMudProfile(),
                                         deviceRecord.getDevice().getMac(),
@@ -89,11 +89,13 @@ public class MudieStatsCollector {
                                         deviceRecord.getDevice().getMac().replace(":", "") + "_flowstats.csv";
                                 logData(path, row, true);
                             }
-                            logDeviceData(deviceRecord.getDevice().getMac(), deviceRecord.getaSwitch().getDpId());
+                            logDeviceData(deviceRecord.getDevice().getMac());
                         } catch (IOException e) {
                             log.error("Failed to process mud profile for device " + deviceRecord.getDevice().getMac(), e);
                         } catch (OFControllerException e) {
                             log.error("Failed to retrieve flow stats for device " + deviceRecord.getDevice().getMac(), e);
+                        } catch (Exception e) {
+                            log.error("Failed to retrieve flow stats " + deviceRecord.getDevice().getMac(), e);
                         }
 
 
@@ -108,15 +110,8 @@ public class MudieStatsCollector {
                 .getSummerizationTimeInSeconds(), TimeUnit.SECONDS);
     }
 
-    private void logDeviceData(String deviceMac, String dpId) throws OFControllerException {
-        List<OFFlow> deviceFlowStats = MUDCollectorDataHolder.getOfController().getFlowStats(dpId);
-//        List<OFFlow> deviceFlowStats = new ArrayList<>();
-//        for (OFFlow currentFlow : flowStats) {
-//            if (!currentFlow.getSrcMac().equals(deviceMac) && !currentFlow.getDstMac().equals(deviceMac)) {
-//                continue;
-//            }
-//            deviceFlowStats.add(currentFlow);
-//        }
+    private void logDeviceData(String deviceMac) throws OFControllerException {
+        List<OFFlow> deviceFlowStats = MUDCollectorDataHolder.getOfController().getFilteredFlowStats(deviceMac);
 
         MudFeatureWrapper mudieFeatureWrapper = featureSet.get(deviceMac);
         Map<Integer, OFFlow> currentStaticFlowRecords = new HashMap<>();
@@ -135,7 +130,6 @@ public class MudieStatsCollector {
                     if (flow == null) {
                         continue;
                     }
-
                     currentDynamicFlowRecords.put(currentFlow.hashCode(), currentFlow);
                 }
 
