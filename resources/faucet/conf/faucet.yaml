@@ -1,13 +1,16 @@
 include-optional:
-    - f4f26d229e7c-acl-mud.yaml
+    - 14cc205133ea-acl-mud.yaml
 
 dps:
     switch-1:
-        dp_id: 0xf4f26d229e7c
+        dp_id: 0x14cc205133ea
         timeout: 3600
         arp_neighbor_timeout: 3600
         interfaces:
             1:
+                native_vlan: 100
+                acls_in: [mud-mirror-acl,default-allow-acl]
+            2:
                 native_vlan: 100
                 acls_in: [mud-mirror-acl,default-allow-acl]
             3:

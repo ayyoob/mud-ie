@@ -28,6 +28,7 @@ import java.util.Map;
 
 public class FaucetOFControllerImpl implements OFController {
 	private static final String DEFAULT_ALLOW_ACL_NAME = "default-allow-acl";
+	private static final String DEFAULT_DEVICE_LOCAL_ACL_NAME = "default-device-local-allow-acl";
 	public static final int DEFAULT_MIRROR_PORT = 5;
 	private static final String DEVICE_ACL_POSTFIX = "-acl";
 	private static final String SWITCH_ACL_FILE_POSTFIX = "-acl-mud.yaml";
@@ -44,6 +45,7 @@ public class FaucetOFControllerImpl implements OFController {
 	private static final String DB_USERNAME = "username";
 	private static final String DB_PASSWORD = "password";
 	private static final String DB_URL = "dbUrl";
+	private static final int DEFAULT_LOCAL_COMMUNICATION = 4;
 	private static String dbname;
 
 	public FaucetOFControllerImpl() {
@@ -106,6 +108,8 @@ public class FaucetOFControllerImpl implements OFController {
 		}
 		deviceMac = deviceMac.replace(":", "");
 		String deviceFile = deviceMac + DEVICE_ACL_FILE_POSTFIX;
+		String localSwitchFile = dpId + "-local-" + DEVICE_ACL_FILE_POSTFIX;
+		String defaultLocalACLName =  dpId + "-" + DEFAULT_DEVICE_LOCAL_ACL_NAME;
 
 		String path = faucetConfigPath + File.separator + dpId + SWITCH_ACL_FILE_POSTFIX;
 		File switchMudConfig = new File(path);
@@ -113,11 +117,13 @@ public class FaucetOFControllerImpl implements OFController {
 			SwitchFaucetConfig switchFaucetConfig = new SwitchFaucetConfig();
 			List<String> deviceList = new ArrayList<>();
 			deviceList.add(deviceFile);
+			deviceList.add(localSwitchFile);
 			switchFaucetConfig.setInclude(deviceList);
 			Map<Integer, AclsIn> vlanMap = new HashMap<>();
 			AclsIn aclsIn = new AclsIn();
 			List<String> acls = new ArrayList<>();
 			acls.add(deviceMac + DEVICE_ACL_POSTFIX);
+			acls.add(defaultLocalACLName);
 			acls.add(DEFAULT_ALLOW_ACL_NAME);
 			aclsIn.setAclsIn(acls);
 			vlanMap.put(vlan, aclsIn);
@@ -140,6 +146,7 @@ public class FaucetOFControllerImpl implements OFController {
 				aclsIn = new AclsIn();
 				List<String> acls = new ArrayList<>();
 				acls.add(deviceMac + DEVICE_ACL_POSTFIX);
+				acls.add(defaultLocalACLName);
 				acls.add(DEFAULT_ALLOW_ACL_NAME);
 				aclsIn.setAclsIn(acls);
 			} else {
@@ -152,6 +159,7 @@ public class FaucetOFControllerImpl implements OFController {
 		}
 
 		path = faucetConfigPath + File.separator + deviceFile;
+		List<RuleWrapper> localRules = new ArrayList<>();
 		Acls acls = new Acls();
 		List<RuleWrapper> ruleList = new ArrayList<RuleWrapper>();
 		for (OFFlow ofFlow : ofFlows) {
@@ -159,8 +167,11 @@ public class FaucetOFControllerImpl implements OFController {
 			Rule rule = new Rule();
 			rule.setOFFlow(ofFlow);
 			ruleWrapper.setRule(rule);
-			ruleList.add(ruleWrapper);
-
+			if (ofFlow.getPriority() == DEFAULT_LOCAL_COMMUNICATION) {
+				localRules.add(ruleWrapper);
+			} else {
+				ruleList.add(ruleWrapper);
+			}
 		}
 		Map<String, List<RuleWrapper>> map = new HashMap<>();
 		map.put(deviceMac + DEVICE_ACL_POSTFIX, ruleList);
@@ -168,6 +179,29 @@ public class FaucetOFControllerImpl implements OFController {
 
 		File deviceFaucetConfig = new File(path);
 		writeDeviceYamlToFile(deviceFaucetConfig, acls);
+
+		//create a file to handle local default communication to resolve priority conflicts.
+		path = faucetConfigPath + File.separator + localSwitchFile;
+		File localSwitchDeviceFile = new File(path);
+		if (!localSwitchDeviceFile.exists()) {
+			acls = new Acls();
+			map = new HashMap<>();
+			map.put(defaultLocalACLName, localRules);
+			acls.setAcls(map);
+			writeDeviceYamlToFile(localSwitchDeviceFile, acls);
+		} else {
+			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+			try {
+				acls = mapper.readValue(localSwitchDeviceFile, Acls.class);
+				acls.getAcls().get(defaultLocalACLName).addAll(localRules);
+				localSwitchDeviceFile.delete();
+				writeDeviceYamlToFile(localSwitchDeviceFile, acls);
+			} catch (IOException e) {
+				throw new OFControllerException(e);
+			}
+
+
+		}
 
 //		try {
 //			SdnControllerDataHolder.getNatsClient().publish(FAUCET_REACTIVE_FLOW_SUBJECT, "reload");

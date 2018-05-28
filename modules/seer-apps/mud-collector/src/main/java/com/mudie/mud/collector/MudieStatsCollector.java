@@ -41,6 +41,7 @@ public class MudieStatsCollector {
     private static String ICMP = "Icmp";
     private static String ARP = "Arp";
     private Map<String, MudFeatureWrapper> featureSet = new HashMap();
+    private static String LINK_LOCAL_MULTICAST_IP_RANGE = "ff00::/ff00::";
 
     public MudieStatsCollector() {
         ScheduledExecutorService deviceExecutor = Executors.newScheduledThreadPool(1);
@@ -82,6 +83,7 @@ public class MudieStatsCollector {
                                     flowOrder[i] = ofFlow.hashCode();
                                     i++;
                                 }
+                                row = row + ", NoOfFlows";
                                 MudFeatureWrapper mudieFeatureWrapper = new MudFeatureWrapper(staticOfflows, dynamicOfflows);
                                 mudieFeatureWrapper.setFlowOrder(flowOrder);
                                 featureSet.put(deviceRecord.getDevice().getMac(), mudieFeatureWrapper);
@@ -112,11 +114,20 @@ public class MudieStatsCollector {
 
     private void logDeviceData(String deviceMac) throws OFControllerException {
         List<OFFlow> deviceFlowStats = MUDCollectorDataHolder.getOfController().getFilteredFlowStats(deviceMac);
-
+        if (deviceFlowStats == null || deviceFlowStats.size() ==0) {
+            return;
+        }
         MudFeatureWrapper mudieFeatureWrapper = featureSet.get(deviceMac);
         Map<Integer, OFFlow> currentStaticFlowRecords = new HashMap<>();
         Map<Integer, OFFlow> currentDynamicFlowRecords = new HashMap<>();
         for (OFFlow currentFlow : deviceFlowStats) {
+            //TODO TMP FIX for IPV6 TO TEST FUNCTIONALITY
+            if (currentFlow.getDstIp().equals(LINK_LOCAL_MULTICAST_IP_RANGE) || currentFlow.getDstIp().equals(PacketConstants.LINK_LOCAL_MULTICAST_IP_RANGE)) {
+                currentFlow.setDstIp(PacketConstants.LINK_LOCAL_MULTICAST_IP_RANGE);
+            } else if (currentFlow.getDstIp().equals("ff05::c")) {
+                currentFlow.setDstIp("ff05:0:0:0:0:0:0:c");
+            }
+            //END
             OFFlow tmpFlow = currentFlow.copy();
             tmpFlow.setPacketCount(currentFlow.getPacketCount());
             tmpFlow.setByteCount(currentFlow.getByteCount());
@@ -128,6 +139,7 @@ public class MudieStatsCollector {
                 } else {
                     flow = getMatchingFlow(currentFlow, mudieFeatureWrapper.getDynamicFlows());
                     if (flow == null) {
+                        //log.error("undefined feature name "+currentFlow.getFlowString()+" for device mac: " + deviceMac);
                         continue;
                     }
                     currentDynamicFlowRecords.put(currentFlow.hashCode(), currentFlow);
@@ -148,6 +160,7 @@ public class MudieStatsCollector {
                 } else {
                     flow = getMatchingFlow(currentFlow, mudieFeatureWrapper.getDynamicFlows());
                     if (flow == null) {
+                        //log.error("undefined feature name "+currentFlow.getFlowString()+" for device mac: " + deviceMac);
                         continue;
                     }
                     OFFlow lastFlowRecord = getMatchingFlow(currentFlow,mudieFeatureWrapper.getLastReactiveFlowRecords());
@@ -166,7 +179,7 @@ public class MudieStatsCollector {
 
         if (mudieFeatureWrapper.getLastStaticFlowRecords() != null) {
             //log data here.
-            publishData(deviceMac, mudieFeatureWrapper);
+            publishData(deviceMac, mudieFeatureWrapper, deviceFlowStats.size());
             mudieFeatureWrapper.resetDynamicFlowMetrics();
 
         }
@@ -174,7 +187,7 @@ public class MudieStatsCollector {
         mudieFeatureWrapper.setLastReactiveFlowRecords(currentDynamicFlowRecords);
     }
 
-    private void publishData(String deviceMac, MudFeatureWrapper mudieFeatureWrapper) {
+    private void publishData(String deviceMac, MudFeatureWrapper mudieFeatureWrapper, int size) {
         String row =  "" + System.currentTimeMillis();
         for(int key : mudieFeatureWrapper.getFlowOrder()) {
             if (mudieFeatureWrapper.getStaticFlows().containsKey(key)) {
@@ -186,6 +199,7 @@ public class MudieStatsCollector {
             }
 
         }
+        row = row + "," + size;
         String path = SeerDirectory.getLogDirectory() + File.separator +
                 deviceMac.replace(":","") + "_flowstats.csv";
         logData(path, row);
@@ -632,95 +646,95 @@ public class MudieStatsCollector {
         ofFlow.setOfAction(OFFlow.OFAction.NORMAL);
         deviceMUDFlowMap.getFromLocalStaticFlows().add(ofFlow);
 
-        ofFlow = new OFFlow();
-        ofFlow.setDstMac(deviceMac);
-        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
-        ofFlow.setName(String.format(FROM_LOCAL_FEATURE_NAME, ICMP,"All"));
-        ofFlow.setIpProto(PacketConstants.ICMP_PROTO);
-        ofFlow.setPriority(DEFAULT_LOCAL_COMMUNICATION);
-        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
-        deviceMUDFlowMap.getFromLocalStaticFlows().add(ofFlow);
-
-        ofFlow = new OFFlow();
-        ofFlow.setDstMac(deviceMac);
-        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
-        ofFlow.setName(String.format(FROM_LOCAL_FEATURE_NAME, TCP,"All"));
-        ofFlow.setIpProto(PacketConstants.TCP_PROTO);
-        ofFlow.setPriority(DEFAULT_LOCAL_COMMUNICATION);
-        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
-        deviceMUDFlowMap.getFromLocalStaticFlows().add(ofFlow);
-
-        ofFlow = new OFFlow();
-        ofFlow.setDstMac(deviceMac);
-        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
-        ofFlow.setName(String.format(FROM_LOCAL_FEATURE_NAME, UDP,"All"));
-        ofFlow.setIpProto(PacketConstants.UDP_PROTO);
-        ofFlow.setPriority(DEFAULT_LOCAL_COMMUNICATION);
-        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
-        deviceMUDFlowMap.getFromLocalStaticFlows().add(ofFlow);
+//        ofFlow = new OFFlow();
+//        ofFlow.setDstMac(deviceMac);
+//        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
+//        ofFlow.setName(String.format(FROM_LOCAL_FEATURE_NAME, ICMP,"All"));
+//        ofFlow.setIpProto(PacketConstants.ICMP_PROTO);
+//        ofFlow.setPriority(DEFAULT_LOCAL_COMMUNICATION);
+//        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
+//        deviceMUDFlowMap.getFromLocalStaticFlows().add(ofFlow);
+//
+//        ofFlow = new OFFlow();
+//        ofFlow.setDstMac(deviceMac);
+//        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
+//        ofFlow.setName(String.format(FROM_LOCAL_FEATURE_NAME, TCP,"All"));
+//        ofFlow.setIpProto(PacketConstants.TCP_PROTO);
+//        ofFlow.setPriority(DEFAULT_LOCAL_COMMUNICATION);
+//        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
+//        deviceMUDFlowMap.getFromLocalStaticFlows().add(ofFlow);
+//
+//        ofFlow = new OFFlow();
+//        ofFlow.setDstMac(deviceMac);
+//        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
+//        ofFlow.setName(String.format(FROM_LOCAL_FEATURE_NAME, UDP,"All"));
+//        ofFlow.setIpProto(PacketConstants.UDP_PROTO);
+//        ofFlow.setPriority(DEFAULT_LOCAL_COMMUNICATION);
+//        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
+//        deviceMUDFlowMap.getFromLocalStaticFlows().add(ofFlow);
     }
 
     private void installInternetNetworkRules(String deviceMac, String switchMac, DeviceMUDFlowMap deviceMUDFlowMap) {
 
-        OFFlow ofFlow = new OFFlow();
-        ofFlow.setSrcMac(switchMac);
-        ofFlow.setDstMac(deviceMac);
-        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
-        ofFlow.setName(String.format(FROM_INTERNET_FEATURE_NAME, TCP,"All"));
-        ofFlow.setIpProto(PacketConstants.TCP_PROTO);
-        ofFlow.setPriority(DEFAULT_INTERNET_COMMUNICATION);
-        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
-        deviceMUDFlowMap.getFromInternetStaticFlows().add(ofFlow);
-
-        ofFlow = new OFFlow();
-        ofFlow.setSrcMac(switchMac);
-        ofFlow.setDstMac(deviceMac);
-        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
-        ofFlow.setIpProto(PacketConstants.UDP_PROTO);
-        ofFlow.setName(String.format(FROM_INTERNET_FEATURE_NAME, UDP,"All"));
-        ofFlow.setPriority(DEFAULT_INTERNET_COMMUNICATION);
-        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
-        deviceMUDFlowMap.getFromInternetStaticFlows().add(ofFlow);
-
-        ofFlow = new OFFlow();
-        ofFlow.setSrcMac(deviceMac);
-        ofFlow.setDstMac(switchMac);
-        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
-        ofFlow.setIpProto(PacketConstants.ICMP_PROTO);
-        ofFlow.setName(String.format(FROM_INTERNET_FEATURE_NAME, ICMP,"All"));
-        ofFlow.setPriority(DEFAULT_INTERNET_COMMUNICATION);
-        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
-        deviceMUDFlowMap.getToInternetStaticFlows().add(ofFlow);
-
-        ofFlow = new OFFlow();
-        ofFlow.setSrcMac(deviceMac);
-        ofFlow.setDstMac(switchMac);
-        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
-        ofFlow.setIpProto(PacketConstants.UDP_PROTO);
-        ofFlow.setName(String.format(TO_INTERNET_FEATURE_NAME, UDP,"All"));
-        ofFlow.setPriority(DEFAULT_INTERNET_COMMUNICATION);
-        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
-        deviceMUDFlowMap.getToInternetStaticFlows().add(ofFlow);
-
-        ofFlow = new OFFlow();
-        ofFlow.setSrcMac(deviceMac);
-        ofFlow.setDstMac(switchMac);
-        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
-        ofFlow.setIpProto(PacketConstants.TCP_PROTO);
-        ofFlow.setName(String.format(TO_INTERNET_FEATURE_NAME, TCP,"All"));
-        ofFlow.setPriority(DEFAULT_INTERNET_COMMUNICATION);
-        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
-        deviceMUDFlowMap.getToInternetStaticFlows().add(ofFlow);
-
-        ofFlow = new OFFlow();
-        ofFlow.setSrcMac(switchMac);
-        ofFlow.setDstMac(deviceMac);
-        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
-        ofFlow.setIpProto(PacketConstants.ICMP_PROTO);
-        ofFlow.setName(String.format(TO_INTERNET_FEATURE_NAME, ICMP,"All"));
-        ofFlow.setPriority(DEFAULT_INTERNET_COMMUNICATION);
-        ofFlow.setOfAction(OFFlow.OFAction.NORMAL);
-        deviceMUDFlowMap.getFromInternetStaticFlows().add(ofFlow);
+//        OFFlow ofFlow = new OFFlow();
+//        ofFlow.setSrcMac(switchMac);
+//        ofFlow.setDstMac(deviceMac);
+//        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
+//        ofFlow.setName(String.format(FROM_INTERNET_FEATURE_NAME, TCP,"All"));
+//        ofFlow.setIpProto(PacketConstants.TCP_PROTO);
+//        ofFlow.setPriority(DEFAULT_INTERNET_COMMUNICATION);
+//        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
+//        deviceMUDFlowMap.getFromInternetStaticFlows().add(ofFlow);
+//
+//        ofFlow = new OFFlow();
+//        ofFlow.setSrcMac(switchMac);
+//        ofFlow.setDstMac(deviceMac);
+//        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
+//        ofFlow.setIpProto(PacketConstants.UDP_PROTO);
+//        ofFlow.setName(String.format(FROM_INTERNET_FEATURE_NAME, UDP,"All"));
+//        ofFlow.setPriority(DEFAULT_INTERNET_COMMUNICATION);
+//        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
+//        deviceMUDFlowMap.getFromInternetStaticFlows().add(ofFlow);
+//
+//        ofFlow = new OFFlow();
+//        ofFlow.setSrcMac(deviceMac);
+//        ofFlow.setDstMac(switchMac);
+//        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
+//        ofFlow.setIpProto(PacketConstants.ICMP_PROTO);
+//        ofFlow.setName(String.format(FROM_INTERNET_FEATURE_NAME, ICMP,"All"));
+//        ofFlow.setPriority(DEFAULT_INTERNET_COMMUNICATION);
+//        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
+//        deviceMUDFlowMap.getToInternetStaticFlows().add(ofFlow);
+//
+//        ofFlow = new OFFlow();
+//        ofFlow.setSrcMac(deviceMac);
+//        ofFlow.setDstMac(switchMac);
+//        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
+//        ofFlow.setIpProto(PacketConstants.UDP_PROTO);
+//        ofFlow.setName(String.format(TO_INTERNET_FEATURE_NAME, UDP,"All"));
+//        ofFlow.setPriority(DEFAULT_INTERNET_COMMUNICATION);
+//        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
+//        deviceMUDFlowMap.getToInternetStaticFlows().add(ofFlow);
+//
+//        ofFlow = new OFFlow();
+//        ofFlow.setSrcMac(deviceMac);
+//        ofFlow.setDstMac(switchMac);
+//        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
+//        ofFlow.setIpProto(PacketConstants.TCP_PROTO);
+//        ofFlow.setName(String.format(TO_INTERNET_FEATURE_NAME, TCP,"All"));
+//        ofFlow.setPriority(DEFAULT_INTERNET_COMMUNICATION);
+//        ofFlow.setOfAction(OFFlow.OFAction.MIRROR_TO_VXLAN);
+//        deviceMUDFlowMap.getToInternetStaticFlows().add(ofFlow);
+//
+//        ofFlow = new OFFlow();
+//        ofFlow.setSrcMac(switchMac);
+//        ofFlow.setDstMac(deviceMac);
+//        ofFlow.setEthType(PacketConstants.ETH_TYPE_IPV4);
+//        ofFlow.setIpProto(PacketConstants.ICMP_PROTO);
+//        ofFlow.setName(String.format(TO_INTERNET_FEATURE_NAME, ICMP,"All"));
+//        ofFlow.setPriority(DEFAULT_INTERNET_COMMUNICATION);
+//        ofFlow.setOfAction(OFFlow.OFAction.NORMAL);
+//        deviceMUDFlowMap.getFromInternetStaticFlows().add(ofFlow);
 
     }
 
@@ -741,7 +755,7 @@ public class MudieStatsCollector {
             boolean ipMatching ;
             if (flow.getSrcIp().contains("/")) {
                 String ip = flow.getSrcIp().split("/")[0];
-                if (flow.getSrcIp().equals(PacketConstants.LINK_LOCAL_MULTICAST_IP_RANGE)) {
+                if (flow.getSrcIp().equals(LINK_LOCAL_MULTICAST_IP_RANGE)) {
                     ip = "ff";
                 }
                 ipMatching = srcIp.startsWith(ip) || flow.getSrcIp().equals("*");
@@ -751,7 +765,7 @@ public class MudieStatsCollector {
 
             if (flow.getDstIp().contains("/")) {
                 String ip = flow.getDstIp().split("/")[0];
-                if (flow.getDstIp().equals(PacketConstants.LINK_LOCAL_MULTICAST_IP_RANGE)) {
+                if (flow.getDstIp().equals(LINK_LOCAL_MULTICAST_IP_RANGE)) {
                     ip = "ff";
                 }
                 ipMatching = ipMatching && dstIp.startsWith(flow.getDstIp().split("/")[0]) || flow.getDstIp().equals("*");
