@@ -316,7 +316,7 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 					if (ofFlow != null) {
 						ofFlow = ofFlow.copy();
 						ofFlow.setIdleTimeOutInSeconds(MUDProcesserDataHolder.getMudConfig().getMudReactiveIdleTimeout());
-						if (ofFlow.getSrcIp().equals(dns)) {
+						if (ofFlow.getSrcIp().equals(dns) || dns.endsWith(ofFlow.getSrcIp())) {
 							ofFlow.setSrcIp(srcIp);
 						}
 						try {
@@ -341,7 +341,7 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 					if (ofFlow != null) {
 						ofFlow = ofFlow.copy();
 						ofFlow.setIdleTimeOutInSeconds(MUDProcesserDataHolder.getMudConfig().getMudReactiveIdleTimeout());
-						if (ofFlow.getDstIp().equals(dns)) {
+						if (ofFlow.getDstIp().equals(dns) || dns.endsWith(ofFlow.getDstIp())) {
 							ofFlow.setDstIp(dstIp);
 						}
 						try {
@@ -798,8 +798,8 @@ public class MUDProcessorPacketListenerImpl implements PacketListener {
 					(dstMac.equals(flow.getDstMac()) || flow.getDstMac().equals("*")) &&
 					(ethType.equals(flow.getEthType()) || flow.getEthType().equals("*")) &&
 					(vlanId.equals(flow.getVlanId()) || flow.getVlanId().equals("*")) &&
-					(srcIp.equals(flow.getSrcIp()) || flow.getSrcIp().equals("*")) &&
-					(dstIp.equals(flow.getDstIp()) || flow.getDstIp().equals("*")) &&
+					(srcIp.endsWith(flow.getSrcIp()) ||srcIp.equals(flow.getSrcIp()) || flow.getSrcIp().equals("*")) &&
+					(dstIp.endsWith(flow.getDstIp()) || dstIp.equals(flow.getDstIp()) || flow.getDstIp().equals("*")) &&
 					(ipProto.equals(flow.getIpProto()) || flow.getIpProto().equals("*")) &&
 					(srcPort.equals(flow.getSrcPort()) || flow.getSrcPort().equals("*")) &&
 					(dstPort.equals(flow.getDstPort()) || flow.getDstPort().equals("*"));
