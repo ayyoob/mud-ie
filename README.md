@@ -1,5 +1,7 @@
 # mud-ie
-SDN based system to translate MUD profile to flow rules using Faucet as a controller
+SDN based system to translate Manufacturer Usade Description(MUD) to flow rules using Faucet as a controller.
+
+
 
 # Prerequisite
 LibPcap (install tcpdump)
