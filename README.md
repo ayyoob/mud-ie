@@ -25,7 +25,7 @@ The product pack (zip file) will be available in distribution/target
 This product contains of 3 seperate execution scripts
 
 ```sh
- 1) Faucet/influx db/nats : execute the docker compose file by executing the command docker-compose up
+ 1) Ryu/Faucet/influx db/nats : execute the docker compose file by executing the command docker-compose up
  2) inspector-engine: execute the seer.sh file in the bin directory
  3) mud-collector: execute the seer.shh file in the bin director
 ```
