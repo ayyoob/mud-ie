@@ -19,7 +19,7 @@ $ cd mud-ie
 $ mvn clean install
 ```
 
-After building The product pack (zip file) will be available in distribution/target 
+The product pack (zip file) will be available in distribution/target 
 # Product execution
 
 This product contains of 3 seperate execution scripts
