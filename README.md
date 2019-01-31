@@ -1,7 +1,12 @@
 # mud-ie
 SDN based system to translate Manufacturer Usade Description(MUD) to flow rules using Faucet as a controller.
 
+# MUD
 
+This specification allows an operator to lock down the network traffic of the IoT device using access control lists (ACLs) derived from its MUD profile; This work used software defined networking (SDN) as a vehicle to translate MUD profiles into static and dynamic flow rules that can be applied at run-time on OpenFlow-capable switches to limit IoT traffic
+
+# Reference
+https://tools.ietf.org/html/draft-ietf-opsawg-mud-25
 
 # Prerequisite
 LibPcap (install tcpdump)
